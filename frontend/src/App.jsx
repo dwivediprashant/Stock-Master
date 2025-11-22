@@ -22,6 +22,7 @@ import AdjustmentList from "./features/operations/AdjustmentList";
 import AdjustmentForm from "./features/operations/AdjustmentForm";
 import StockLedger from "./features/ledger/StockLedger";
 import Dashboard from "./features/dashboard/Dashboard";
+import SettingsPage from "./features/settings/SettingsPage";
 
 function App() {
   return (
@@ -62,14 +63,7 @@ function App() {
               <Route path="/operations/adjustments/:id" element={<AdjustmentForm />} />
               
               <Route path="/ledger" element={<StockLedger />} />
-              <Route
-                path="/settings/warehouses"
-                element={
-                  <div className="page">
-                    <h1>Warehouses & Locations (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/" element={<Dashboard />} />
             </Route>
           </Route>
