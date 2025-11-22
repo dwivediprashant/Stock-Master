@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getOperations } from "./api";
+import KanbanColumn from "../../components/KanbanColumn";
+import KanbanCard from "../../components/KanbanCard";
 
 const ReceiptList = () => {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("list"); // 'list' or 'kanban'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,6 +46,12 @@ const ReceiptList = () => {
     );
   });
 
+  //  Group by status for Kanban view
+  const groupedReceipts = {
+    draft: filteredReceipts.filter(r => r.status === 'draft'),
+    done: filteredReceipts.filter(r => r.status === 'done'),
+  };
+
   return (
     <div className="container-fluid p-4">
       <div className="page-header">
@@ -55,9 +64,9 @@ const ReceiptList = () => {
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-3">
-        <div className="input-group">
+      {/* Search Bar + View Toggle */}
+      <div className="d-flex gap-2 mb-3">
+        <div className="input-group flex-grow-1">
           <span className="input-group-text bg-white">
             <i className="bi bi-search"></i>
           </span>
@@ -77,51 +86,112 @@ const ReceiptList = () => {
             </button>
           )}
         </div>
-      </div>
 
-      <div className="card border-0 shadow-sm">
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            <table className="table table-hover mb-0 align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th className="ps-4">Reference</th>
-                  <th>Vendor</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th className="text-end pe-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredReceipts.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="text-center py-5 text-muted">
-                      <i className="bi bi-truck display-4 d-block mb-3"></i>
-                      {searchTerm ? "No receipts match your search." : "No receipts found."}
-                    </td>
-                  </tr>
-                ) : (
-                  filteredReceipts.map((receipt) => (
-                    <tr key={receipt._id} onClick={() => navigate(`/operations/receipts/${receipt._id}`)} style={{ cursor: "pointer" }}>
-                      <td className="ps-4 fw-bold text-primary">{receipt.reference}</td>
-                      <td>{receipt.partner || "-"}</td>
-                      <td>{new Date(receipt.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <span className={`badge ${getStatusBadge(receipt.status)}`}>
-                          {receipt.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="text-end pe-4">
-                        <i className="bi bi-chevron-right text-muted"></i>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        {/* View Toggle */}
+        <div className="btn-group" role="group">
+          <button
+            type="button"
+            className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setViewMode('list')}
+          >
+            <i className="bi bi-list-ul"></i>
+          </button>
+          <button
+            type="button"
+            className={`btn ${viewMode === 'kanban' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setViewMode('kanban')}
+          >
+            <i className="bi bi-kanban"></i>
+          </button>
         </div>
       </div>
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="card border-0 shadow-sm">
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover mb-0 align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th className="ps-4">Reference</th>
+                    <th>Vendor</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th className="text-end pe-4">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredReceipts.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-5 text-muted">
+                        <i className="bi bi-truck display-4 d-block mb-3"></i>
+                        {searchTerm ? "No receipts match your search." : "No receipts found."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredReceipts.map((receipt) => (
+                      <tr key={receipt._id} onClick={() => navigate(`/operations/receipts/${receipt._id}`)} style={{ cursor: "pointer" }}>
+                        <td className="ps-4 fw-bold text-primary">{receipt.reference}</td>
+                        <td>{receipt.partner || "-"}</td>
+                        <td>{new Date(receipt.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`badge ${getStatusBadge(receipt.status)}`}>
+                            {receipt.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="text-end pe-4">
+                          <i className="bi bi-chevron-right text-muted"></i>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Kanban View */}
+      {viewMode === 'kanban' && (
+        <div className="row">
+          <div className="col-md-6">
+            <KanbanColumn title="Draft" count={groupedReceipts.draft.length} color="info">
+              {groupedReceipts.draft.map((receipt) => (
+                <KanbanCard
+                  key={receipt._id}
+                  title={receipt.reference}
+                  subtitle={receipt.partner}
+                  date={receipt.createdAt}
+                  onClick={() => navigate(`/operations/receipts/${receipt._id}`)}
+                  badge={{ text: 'DRAFT', className: 'bg-info text-dark' }}
+                />
+              ))}
+              {groupedReceipts.draft.length === 0 && (
+                <p className="text-muted text-center py-4">No draft receipts</p>
+              )}
+            </KanbanColumn>
+          </div>
+          <div className="col-md-6">
+            <KanbanColumn title="Validated" count={groupedReceipts.done.length} color="success">
+              {groupedReceipts.done.map((receipt) => (
+                <KanbanCard
+                  key={receipt._id}
+                  title={receipt.reference}
+                  subtitle={receipt.partner}
+                  date={receipt.createdAt}
+                  onClick={() => navigate(`/operations/receipts/${receipt._id}`)}
+                  badge={{ text: 'DONE', className: 'bg-success' }}
+                />
+              ))}
+              {groupedReceipts.done.length === 0 && (
+                <p className="text-muted text-center py-4">No validated receipts</p>
+              )}
+            </KanbanColumn>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
