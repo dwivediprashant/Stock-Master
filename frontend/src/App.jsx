@@ -1,35 +1,98 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import MainLayout from "./layouts/MainLayout";
+import LoginPage from "./features/auth/LoginPage";
+import SignupPage from "./features/auth/SignupPage";
+import RequestResetPage from "./features/auth/RequestResetPage";
+import ResetPasswordPage from "./features/auth/ResetPasswordPage";
+import DashboardPage from "./features/dashboard/DashboardPage";
+import ProfilePage from "./features/profile/ProfilePage";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public auth routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/reset/request" element={<RequestResetPage />} />
+          <Route path="/reset/verify" element={<ResetPasswordPage />} />
+
+          {/* Protected app routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              {/* Placeholder routes for upcoming modules */}
+              <Route
+                path="/products"
+                element={
+                  <div className="page">
+                    <h1>Products (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/operations/receipts"
+                element={
+                  <div className="page">
+                    <h1>Receipts (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/operations/deliveries"
+                element={
+                  <div className="page">
+                    <h1>Delivery Orders (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/operations/transfers"
+                element={
+                  <div className="page">
+                    <h1>Internal Transfers (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/operations/adjustments"
+                element={
+                  <div className="page">
+                    <h1>Inventory Adjustments (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/ledger"
+                element={
+                  <div className="page">
+                    <h1>Move History (coming soon)</h1>
+                  </div>
+                }
+              />
+              <Route
+                path="/settings/warehouses"
+                element={
+                  <div className="page">
+                    <h1>Warehouses & Locations (coming soon)</h1>
+                  </div>
+                }
+              />
+            </Route>
+          </Route>
+
+          {/* Default route */}
+          <Route path="*" element={<LoginPage />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
