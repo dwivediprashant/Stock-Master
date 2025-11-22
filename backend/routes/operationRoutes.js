@@ -14,6 +14,6 @@ router.get("/", authMiddleware, getOperations);
 router.get("/:id", authMiddleware, getOperation);
 router.post("/", authMiddleware, createOperation); // Staff can create drafts
 router.put("/:id", authMiddleware, updateOperation);
-router.post("/:id/validate", authMiddleware, checkRole(["manager"]), validateOperation); // Only managers can validate
+router.post("/:id/validate", authMiddleware, validateOperation); // Staff can validate
 
 module.exports = router;

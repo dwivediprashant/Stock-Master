@@ -1,5 +1,7 @@
+// backend/routes/productRoutes.js
 const express = require("express");
 const router = express.Router();
+
 const {
   getProducts,
   getProduct,
@@ -9,15 +11,16 @@ const {
   getCategories,
   getUnits,
 } = require("../controllers/productController");
-const authMiddleware = require("../middleware/authMiddleware");
-const checkRole = require("../middleware/roleMiddleware");
 
+const authMiddleware = require("../middleware/authMiddleware");
+
+// All product endpoints require authentication (staff & manager allowed)
 router.get("/", authMiddleware, getProducts);
-router.post("/", authMiddleware, checkRole(["manager"]), createProduct);
+router.post("/", authMiddleware, createProduct);
 router.get("/categories", authMiddleware, getCategories);
 router.get("/units", authMiddleware, getUnits);
 router.get("/:id", authMiddleware, getProduct);
-router.put("/:id", authMiddleware, checkRole(["manager"]), updateProduct);
-router.delete("/:id", authMiddleware, checkRole(["manager"]), deleteProduct);
+router.put("/:id", authMiddleware, updateProduct);
+router.delete("/:id", authMiddleware, deleteProduct);
 
 module.exports = router;

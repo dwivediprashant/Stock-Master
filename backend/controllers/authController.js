@@ -21,60 +21,68 @@ function sanitizeUser(user) {
   return rest;
 }
 
+// @desc    Signup
+// @route   POST /api/auth/signup
+// @access  Public
 async function signup(req, res) {
   try {
-    const { loginId, name, email, password, confirmPassword } = req.body;
+    const { loginId, name, email, password, confirmPassword, role } = req.body;
 
-    // Validate all fields
+    // Validate required fields
     if (!loginId || !name || !email || !password || !confirmPassword) {
-      return res
-        .status(400)
-        .json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Validate loginId length (6-12 characters)
+    // Validate loginId length
     if (loginId.length < 6 || loginId.length > 12) {
       return res
         .status(400)
         .json({ message: "Login ID must be between 6-12 characters" });
     }
 
-    // Check if loginId already exists
+    // Check uniqueness
     const existingLoginId = await User.findOne({ loginId });
     if (existingLoginId) {
       return res.status(400).json({ message: "Login ID already in use" });
     }
-
-    // Check if email already exists
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
       return res.status(400).json({ message: "Email ID already exists in database" });
     }
 
-    // Validate password strength (min 8 chars, uppercase, lowercase, special char)
+    // Password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({ 
-        message: "Password must contain at least 8 characters, including uppercase, lowercase, and a special character" 
+      return res.status(400).json({
+        message:
+          "Password must contain at least 8 characters, including uppercase, lowercase, and a special character",
       });
     }
 
-    // Validate password match
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    // Role handling (default staff)
+    const allowedRoles = ["manager", "staff"];
+    let userRole = "staff";
+    if (role) {
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role specified" });
+      }
+      userRole = role;
+    }
 
+    const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({
       loginId,
       name,
       email,
       passwordHash,
+      role: userRole,
     });
 
     const token = generateToken(user);
-
     return res.status(201).json({ user: sanitizeUser(user), token });
   } catch (error) {
     console.error("Signup error", error);
@@ -82,6 +90,9 @@ async function signup(req, res) {
   }
 }
 
+// @desc    Login
+// @route   POST /api/auth/login
+// @access  Public
 async function login(req, res) {
   try {
     const { loginId, password } = req.body;
@@ -103,7 +114,6 @@ async function login(req, res) {
     }
 
     const token = generateToken(user);
-
     return res.status(200).json({ user: sanitizeUser(user), token });
   } catch (error) {
     console.error("Login error", error);
@@ -132,7 +142,7 @@ const forgotPassword = async (req, res) => {
     // Generate 6-digit OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const codeHash = await bcrypt.hash(otpCode, 10);
-    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await OtpToken.create({
       userId: user._id,
@@ -163,7 +173,6 @@ const resetPassword = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(400).json({ message: "Invalid OTP or email" });
     }
@@ -182,7 +191,6 @@ const resetPassword = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(otp, tokenDoc.codeHash);
-
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }

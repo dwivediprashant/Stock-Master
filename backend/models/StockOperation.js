@@ -73,9 +73,10 @@ const stockOperationSchema = new mongoose.Schema(
 );
 
 // Auto-generate reference before saving
-stockOperationSchema.pre('save', async function(next) {
+// Auto-generate reference before validation
+stockOperationSchema.pre('validate', async function() {
   if (!this.isNew || this.reference) {
-    return next();
+    return;
   }
 
   try {
@@ -114,9 +115,8 @@ stockOperationSchema.pre('save', async function(next) {
 
     // Generate reference with zero-padding
     this.reference = `${prefix}${String(nextNumber).padStart(4, '0')}`;
-    next();
   } catch (error) {
-    next(error);
+    throw error;
   }
 });
 
