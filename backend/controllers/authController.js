@@ -88,16 +88,13 @@ async function getProfile(req, res) {
   return res.json({ user: sanitizeUser(req.user) });
 }
 
-async function requestPasswordReset(req, res) {
+// @desc    Forgot Password (Generate OTP)
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
   try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
-
     const user = await User.findOne({ email });
-
     if (!user) {
       // Do not reveal whether the email exists
       return res.json({
@@ -105,10 +102,10 @@ async function requestPasswordReset(req, res) {
       });
     }
 
+    // Generate 6-digit OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const codeHash = await bcrypt.hash(otpCode, 10);
-
-    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000); // 10 minutes
 
     await OtpToken.create({
       userId: user._id,
@@ -118,18 +115,17 @@ async function requestPasswordReset(req, res) {
 
     await sendOtpEmail({ to: user.email, code: otpCode });
 
-    return res.json({
-      message: "If an account with this email exists, an OTP has been sent.",
-    });
+    res.json({ message: "If an account with this email exists, an OTP has been sent." });
   } catch (error) {
-    console.error("Request password reset error", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to initiate password reset" });
+    console.error("Forgot password error", error);
+    res.status(500).json({ message: "Failed to initiate password reset" });
   }
-}
+};
 
-async function resetPassword(req, res) {
+// @desc    Reset Password
+// @route   POST /api/auth/reset-password
+// @access  Public
+const resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
 
@@ -176,12 +172,12 @@ async function resetPassword(req, res) {
     console.error("Reset password error", error);
     return res.status(500).json({ message: "Failed to reset password" });
   }
-}
+};
 
 module.exports = {
   signup,
   login,
   getProfile,
-  requestPasswordReset,
+  forgotPassword,
   resetPassword,
 };

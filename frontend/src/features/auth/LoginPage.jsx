@@ -79,23 +79,6 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
-
-              <div className="mb-4">
-                <label className="form-label" htmlFor="password">Password</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
-                  <input
-                    type="password"
-                    className="form-control border-start-0 ps-0"
-                    id="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
               <button
                 type="submit"
                 className="btn btn-primary w-100 py-2 mb-3 fw-bold"

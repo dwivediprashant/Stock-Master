@@ -1,19 +1,21 @@
 import apiClient from "../../lib/apiClient";
 
-export const authApi = {
-  signup(data) {
-    return apiClient.post("/auth/signup", data);
-  },
-  login(data) {
-    return apiClient.post("/auth/login", data);
-  },
-  getMe() {
-    return apiClient.get("/auth/me");
-  },
-  requestPasswordReset(data) {
-    return apiClient.post("/auth/request-reset", data);
-  },
-  resetPassword(data) {
-    return apiClient.post("/auth/reset-password", data);
-  },
+export const login = async (credentials) => {
+  const { data } = await apiClient.post("/auth/login", credentials);
+  return data;
+};
+
+export const signup = async (userData) => {
+  const { data } = await apiClient.post("/auth/signup", userData);
+  return data;
+};
+
+export const forgotPassword = async (email) => {
+  const { data } = await apiClient.post("/auth/forgot-password", { email });
+  return data;
+};
+
+export const resetPassword = async (payload) => {
+  const { data } = await apiClient.post("/auth/reset-password", payload);
+  return data;
 };

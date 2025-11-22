@@ -6,9 +6,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import LoginPage from "./features/auth/LoginPage";
 import SignupPage from "./features/auth/SignupPage";
-import RequestResetPage from "./features/auth/RequestResetPage";
+import ForgotPasswordPage from "./features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/ResetPasswordPage";
-import DashboardPage from "./features/dashboard/DashboardPage";
 import ProfilePage from "./features/profile/ProfilePage";
 import ProductList from "./features/products/ProductList";
 import ProductForm from "./features/products/ProductForm";
@@ -31,30 +30,35 @@ function App() {
           {/* Public auth routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/reset/request" element={<RequestResetPage />} />
-          <Route path="/reset/verify" element={<ResetPasswordPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Protected app routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<ProfilePage />} />
-              {/* Placeholder routes for upcoming modules */}
+              
               <Route path="/products" element={<ProductList />} />
               <Route path="/products/new" element={<ProductForm />} />
               <Route path="/products/:id/edit" element={<ProductForm />} />
+              
               <Route path="/operations/receipts" element={<ReceiptList />} />
               <Route path="/operations/receipts/new" element={<ReceiptForm />} />
               <Route path="/operations/receipts/:id" element={<ReceiptForm />} />
+              
               <Route path="/operations/deliveries" element={<DeliveryList />} />
               <Route path="/operations/deliveries/new" element={<DeliveryForm />} />
               <Route path="/operations/deliveries/:id" element={<DeliveryForm />} />
+              
               <Route path="/operations/transfers" element={<TransferList />} />
               <Route path="/operations/transfers/new" element={<TransferForm />} />
               <Route path="/operations/transfers/:id" element={<TransferForm />} />
+              
               <Route path="/operations/adjustments" element={<AdjustmentList />} />
               <Route path="/operations/adjustments/new" element={<AdjustmentForm />} />
               <Route path="/operations/adjustments/:id" element={<AdjustmentForm />} />
+              
               <Route path="/ledger" element={<StockLedger />} />
               <Route
                 path="/settings/warehouses"

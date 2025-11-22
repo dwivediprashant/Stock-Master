@@ -1,91 +1,120 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { resetPassword } from "./api";
 
 const ResetPasswordPage = () => {
-  const { resetPassword } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
+  
+  const [email, setEmail] = useState(location.state?.email || "");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
+    setLoading(true);
     setError("");
     setMessage("");
-    setLoading(true);
 
     try {
-      const res = await resetPassword(email, otp, newPassword);
-      setMessage(res.message);
+      await resetPassword({ email, otp, newPassword });
+      setMessage("Password reset successful! Redirecting to login...");
       setTimeout(() => {
-        navigate("/login", { replace: true });
-      }, 1200);
+        navigate("/login");
+      }, 2000);
     } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to reset password";
-      setError(msg);
+      setError(err.response?.data?.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-title">Enter OTP and new password</h1>
-        <p className="auth-subtitle">
-          Use the 6-digit OTP sent to your email to set a new password.
-        </p>
+    <div className="d-flex min-vh-100 align-items-center justify-content-center bg-light">
+      <div className="card shadow-sm border-0" style={{ maxWidth: "400px", width: "100%" }}>
+        <div className="card-body p-4 p-sm-5">
+          <div className="text-center mb-4">
+            <h1 className="h4 fw-bold text-primary">Reset Password</h1>
+            <p className="text-muted small">Enter the OTP sent to your email and your new password.</p>
+          </div>
 
-        {error && <div className="auth-error">{error}</div>}
-        {message && <div className="auth-success">{message}</div>}
+          {error && <div className="alert alert-danger py-2 small">{error}</div>}
+          {message && <div className="alert alert-success py-2 small">{message}</div>}
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <label className="auth-label">
-            Email
-            <input
-              type="email"
-              className="auth-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label small fw-bold text-uppercase text-muted">Email Address</label>
+              <input
+                type="email"
+                className="form-control"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="name@company.com"
+              />
+            </div>
 
-          <label className="auth-label">
-            OTP Code
-            <input
-              type="text"
-              className="auth-input"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
-          </label>
+            <div className="mb-3">
+              <label htmlFor="otp" className="form-label small fw-bold text-uppercase text-muted">OTP Code</label>
+              <input
+                type="text"
+                className="form-control"
+                id="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+                placeholder="123456"
+              />
+            </div>
 
-          <label className="auth-label">
-            New Password
-            <input
-              type="password"
-              className="auth-input"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </label>
+            <div className="mb-3">
+              <label htmlFor="newPassword" className="form-label small fw-bold text-uppercase text-muted">New Password</label>
+              <input
+                type="password"
+                className="form-control"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="******"
+              />
+            </div>
 
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? "Updating password..." : "Update password"}
-          </button>
-        </form>
+            <div className="mb-3">
+              <label htmlFor="confirmPassword" className="form-label small fw-bold text-uppercase text-muted">Confirm Password</label>
+              <input
+                type="password"
+                className="form-control"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="******"
+              />
+            </div>
 
-        <div className="auth-footer-links">
-          <Link to="/login">Back to login</Link>
+            <div className="d-grid mb-3">
+              <button type="submit" className="btn btn-primary py-2 fw-bold" disabled={loading}>
+                {loading ? "Resetting..." : "Reset Password"}
+              </button>
+            </div>
+          </form>
+
+          <div className="text-center">
+            <Link to="/login" className="text-decoration-none small text-muted">
+              <i className="bi bi-arrow-left me-1"></i> Back to Login
+            </Link>
+          </div>
         </div>
       </div>
     </div>
