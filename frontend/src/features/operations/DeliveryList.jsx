@@ -5,6 +5,7 @@ import { getOperations } from "./api";
 const DeliveryList = () => {
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +36,15 @@ const DeliveryList = () => {
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
 
+  // Filter deliveries based on search term
+  const filteredDeliveries = deliveries.filter((delivery) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      delivery.reference.toLowerCase().includes(searchLower) ||
+      (delivery.partner && delivery.partner.toLowerCase().includes(searchLower))
+    );
+  });
+
   return (
     <div className="container-fluid p-4">
       <div className="page-header">
@@ -45,6 +55,30 @@ const DeliveryList = () => {
         >
           <i className="bi bi-plus-lg me-2"></i>Create Delivery
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-3">
+        <div className="input-group">
+          <span className="input-group-text bg-white">
+            <i className="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by reference or customer..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setSearchTerm("")}
+            >
+              <i className="bi bi-x-lg"></i>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="card border-0 shadow-sm">
@@ -61,15 +95,15 @@ const DeliveryList = () => {
                 </tr>
               </thead>
               <tbody>
-                {deliveries.length === 0 ? (
+                {filteredDeliveries.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center py-5 text-muted">
                       <i className="bi bi-truck-flatbed display-4 d-block mb-3"></i>
-                      No delivery orders found.
+                      {searchTerm ? "No deliveries match your search." : "No delivery orders found."}
                     </td>
                   </tr>
                 ) : (
-                  deliveries.map((delivery) => (
+                  filteredDeliveries.map((delivery) => (
                     <tr key={delivery._id} onClick={() => navigate(`/operations/deliveries/${delivery._id}`)} style={{ cursor: "pointer" }}>
                       <td className="ps-4 fw-bold text-primary">{delivery.reference}</td>
                       <td>{delivery.partner || "-"}</td>

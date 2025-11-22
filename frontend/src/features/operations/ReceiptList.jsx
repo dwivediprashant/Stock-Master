@@ -5,6 +5,7 @@ import { getOperations } from "./api";
 const ReceiptList = () => {
   const [receipts, setReceipts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +34,15 @@ const ReceiptList = () => {
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
 
+  // Filter receipts based on search term
+  const filteredReceipts = receipts.filter((receipt) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      receipt.reference.toLowerCase().includes(searchLower) ||
+      (receipt.partner && receipt.partner.toLowerCase().includes(searchLower))
+    );
+  });
+
   return (
     <div className="container-fluid p-4">
       <div className="page-header">
@@ -43,6 +53,30 @@ const ReceiptList = () => {
         >
           <i className="bi bi-plus-lg me-2"></i>Create Receipt
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-3">
+        <div className="input-group">
+          <span className="input-group-text bg-white">
+            <i className="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by reference or contact..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => setSearchTerm("")}
+            >
+              <i className="bi bi-x-lg"></i>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="card border-0 shadow-sm">
@@ -59,15 +93,15 @@ const ReceiptList = () => {
                 </tr>
               </thead>
               <tbody>
-                {receipts.length === 0 ? (
+                {filteredReceipts.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center py-5 text-muted">
                       <i className="bi bi-truck display-4 d-block mb-3"></i>
-                      No receipts found.
+                      {searchTerm ? "No receipts match your search." : "No receipts found."}
                     </td>
                   </tr>
                 ) : (
-                  receipts.map((receipt) => (
+                  filteredReceipts.map((receipt) => (
                     <tr key={receipt._id} onClick={() => navigate(`/operations/receipts/${receipt._id}`)} style={{ cursor: "pointer" }}>
                       <td className="ps-4 fw-bold text-primary">{receipt.reference}</td>
                       <td>{receipt.partner || "-"}</td>
