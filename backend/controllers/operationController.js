@@ -45,7 +45,10 @@ const createOperation = async (req, res) => {
 
   try {
     // Simple reference generation: TYPE-TIMESTAMP (e.g., IN-1715000000)
-    const prefix = type === "receipt" ? "WH/IN" : "WH/OPS";
+    let prefix = "WH/OPS";
+    if (type === "receipt") prefix = "WH/IN";
+    else if (type === "delivery") prefix = "WH/OUT";
+    
     const reference = `${prefix}/${Date.now().toString().slice(-6)}`;
 
     const operation = await StockOperation.create({
@@ -134,7 +137,37 @@ const validateOperation = async (req, res) => {
         // 3. Update Done Quantity on Operation
         item.doneQuantity = item.quantity;
       }
+    } else if (operation.type === "delivery") {
+      for (const item of operation.items) {
+        // 1. Check and Update Product Stock
+        const product = await Product.findById(item.product._id);
+        
+        if (product.currentStock < item.quantity) {
+          throw new Error(`Insufficient stock for product: ${product.name}. Available: ${product.currentStock}, Requested: ${item.quantity}`);
+        }
+
+        const oldStock = product.currentStock;
+        const newStock = oldStock - item.quantity;
+        
+        product.currentStock = newStock;
+        await product.save();
+
+        // 2. Create Stock Move (Ledger)
+        await StockMove.create({
+          product: item.product._id,
+          description: `Delivery ${operation.reference}`,
+          reference: operation.reference,
+          quantity: -item.quantity, // Negative for outgoing
+          locationFrom: operation.sourceLocation || "WH/Stock",
+          locationTo: operation.destinationLocation || "Customer",
+          balanceAfter: newStock,
+        });
+
+        // 3. Update Done Quantity
+        item.doneQuantity = item.quantity;
+      }
     }
+
 
     operation.status = "done";
     await operation.save();

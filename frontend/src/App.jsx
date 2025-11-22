@@ -14,6 +14,8 @@ import ProductList from "./features/products/ProductList";
 import ProductForm from "./features/products/ProductForm";
 import ReceiptList from "./features/operations/ReceiptList";
 import ReceiptForm from "./features/operations/ReceiptForm";
+import DeliveryList from "./features/operations/DeliveryList";
+import DeliveryForm from "./features/operations/DeliveryForm";
 
 function App() {
   return (
@@ -38,14 +40,9 @@ function App() {
               <Route path="/operations/receipts" element={<ReceiptList />} />
               <Route path="/operations/receipts/new" element={<ReceiptForm />} />
               <Route path="/operations/receipts/:id" element={<ReceiptForm />} />
-              <Route
-                path="/operations/deliveries"
-                element={
-                  <div className="page">
-                    <h1>Delivery Orders (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/operations/deliveries" element={<DeliveryList />} />
+              <Route path="/operations/deliveries/new" element={<DeliveryForm />} />
+              <Route path="/operations/deliveries/:id" element={<DeliveryForm />} />
               <Route
                 path="/operations/transfers"
                 element={
