@@ -1,58 +1,149 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 :root {
-  /* Core palette */
-  --color-primary: #1a73e8; /* primary blue */
-  --color-primary-hover: #1558b0;
-  --color-navy: #0c1a2a; /* headings, strong text */
-  --color-steel: #5f6c7b; /* muted labels */
-  --color-bg: #f5f7fa; /* app background */
-  --color-border: #e1e4e8; /* dividers, table lines */
+  /* Primary Colors */
+  --primary-blue: #1A73E8;
+  --deep-navy: #0C1A2A;
+  
+  /* Secondary Colors */
+  --steel-gray: #5F6C7B;
+  --cool-gray-bg: #F5F7FA;
+  --neutral-line-gray: #E1E4E8;
 
-  /* Status / KPI colors */
-  --color-success: #1aa260;
-  --color-warning: #f9a825;
-  --color-danger: #d93025;
-  --color-info: #2aa9e0;
+  /* Status & KPI Colors */
+  --success-green: #1AA260;
+  --warning-amber: #F9A825;
+  --danger-red: #D93025;
+  --info-cyan: #2AA9E0;
 
-  /* Accent colors */
-  --color-indigo: #3949ab; /* warehouses */
-  --color-violet: #7e57c2; /* categories */
-}
+  /* Accent Colors */
+  --warehouse-indigo: #3949AB;
+  --category-violet: #7E57C2;
 
-html,
-body,
-#root {
-  height: 100%;
+  /* Bootstrap Overrides Variables */
+  --bs-primary: var(--primary-blue);
+  --bs-secondary: var(--steel-gray);
+  --bs-success: var(--success-green);
+  --bs-warning: var(--warning-amber);
+  --bs-danger: var(--danger-red);
+  --bs-info: var(--info-cyan);
+  --bs-body-bg: var(--cool-gray-bg);
+  --bs-body-color: var(--deep-navy);
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  background: var(--color-bg);
-  color: var(--color-navy);
+  background-color: var(--cool-gray-bg);
+  color: var(--deep-navy);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--deep-navy);
+  font-weight: 600;
 }
 
-button {
-  font: inherit;
+/* Button Overrides */
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
 }
 
-input {
-  font: inherit;
+.btn-primary:hover {
+  background-color: #1558B0;
+  border-color: #1558B0;
 }
 
-.full-page-center {
+.btn-outline-primary {
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-blue);
+  color: white;
+}
+
+/* Card Styling */
+.card {
+  border: 1px solid var(--neutral-line-gray);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  background-color: white;
+}
+
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid var(--neutral-line-gray);
+  font-weight: 600;
+  color: var(--deep-navy);
+}
+
+/* Table Styling */
+.table thead th {
+  background-color: var(--cool-gray-bg);
+  color: var(--deep-navy);
+  border-bottom: 2px solid var(--neutral-line-gray);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  vertical-align: middle;
+  color: var(--deep-navy);
+  border-bottom: 1px solid var(--neutral-line-gray);
+}
+
+/* Form Styling */
+.form-control {
+  border-color: var(--neutral-line-gray);
+  color: var(--deep-navy);
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+}
+
+.form-label {
+  color: var(--steel-gray);
+  font-weight: 500;
+}
+
+/* Sidebar Styling (Custom class) */
+.sidebar {
+  background-color: var(--deep-navy);
+  color: white;
   min-height: 100vh;
+}
+
+.sidebar .nav-link {
+  color: var(--steel-gray);
+  padding: 12px 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+  color: var(--primary-blue); /* Icons + text active */
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid var(--primary-blue);
+}
+
+.sidebar .nav-link i {
+  font-size: 1.2rem;
+}
+
+/* Utility Classes */
+.text-navy { color: var(--deep-navy) !important; }
+.text-steel { color: var(--steel-gray) !important; }
+.bg-navy { background-color: var(--deep-navy) !important; }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }

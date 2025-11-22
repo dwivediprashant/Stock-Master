@@ -34,58 +34,88 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-layout">
-        <div
-          className="auth-brand-panel"
-          style={{ backgroundImage: `url(${APP_LOGO_URL})` }}
-        />
+    <div className="container-fluid vh-100">
+      <div className="row h-100">
+        {/* Brand Panel */}
+        <div className="col-md-6 d-none d-md-flex bg-navy text-white align-items-center justify-content-center flex-column p-5">
+          <div className="text-center mb-4">
+            <img src={APP_LOGO_URL} alt="Logo" style={{ height: '80px', borderRadius: '12px' }} className="mb-4 shadow-lg" />
+            <h1 className="display-4 fw-bold mb-3">StockMaster</h1>
+            <p className="lead text-white-50">Streamline your inventory operations with precision and ease.</p>
+          </div>
+        </div>
 
-        <div className="auth-form-panel">
-          <div className="auth-card">
-            <h1 className="auth-title">Sign in</h1>
-            <p className="auth-subtitle">
-              Access your inventory dashboard and ongoing operations.
-            </p>
+        {/* Form Panel */}
+        <div className="col-md-6 d-flex align-items-center justify-content-center bg-white">
+          <div className="w-100 p-4 p-lg-5" style={{ maxWidth: '450px' }}>
+            <div className="text-center mb-5 d-md-none">
+              <img src={APP_LOGO_URL} alt="Logo" height="60" className="mb-3" />
+              <h2 className="fw-bold text-navy">StockMaster</h2>
+            </div>
 
-            {error && <div className="auth-error">{error}</div>}
+            <h2 className="fw-bold mb-2 text-navy">Welcome Back</h2>
+            <p className="text-muted mb-4">Please sign in to your account</p>
 
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <label className="auth-label">
-                Email
-                <input
-                  type="email"
-                  className="auth-input form-control"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </label>
+            {error && (
+              <div className="alert alert-danger d-flex align-items-center" role="alert">
+                <i className="bi bi-exclamation-circle-fill me-2"></i>
+                <div>{error}</div>
+              </div>
+            )}
 
-              <label className="auth-label">
-                Password
-                <input
-                  type="password"
-                  className="auth-input form-control"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </label>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label" htmlFor="email">Email Address</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-envelope text-muted"></i></span>
+                  <input
+                    type="email"
+                    className="form-control border-start-0 ps-0"
+                    id="email"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label" htmlFor="password">Password</label>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
+                  <input
+                    type="password"
+                    className="form-control border-start-0 ps-0"
+                    id="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
 
               <button
                 type="submit"
-                className="auth-button btn btn-primary w-100"
+                className="btn btn-primary w-100 py-2 mb-3 fw-bold"
                 disabled={loading}
               >
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
               </button>
-            </form>
 
-            <div className="auth-footer-links">
-              <Link to="/signup">Create an account</Link>
-              <Link to="/reset/request">Forgot password?</Link>
-            </div>
+              <div className="d-flex justify-content-between align-items-center mt-4">
+                <Link to="/signup" className="text-decoration-none text-primary fw-medium">Create account</Link>
+                <Link to="/reset/request" className="text-decoration-none text-muted small">Forgot password?</Link>
+              </div>
+            </form>
           </div>
         </div>
       </div>

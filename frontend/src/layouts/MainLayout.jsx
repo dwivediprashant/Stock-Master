@@ -2,99 +2,110 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { APP_LOGO_URL } from "../config/branding";
 
-const navLinkClass = ({ isActive }) =>
-  isActive ? "nav-link nav-link-active" : "nav-link";
-
 const MainLayout = () => {
   const { user, logout } = useAuth();
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <img
-              src={APP_LOGO_URL}
-              alt="StockMaster logo"
-              className="sidebar-logo-img"
-            />
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          <div className="nav-section">
-            <div className="nav-section-title">Overview</div>
-            <NavLink to="/dashboard" className={navLinkClass}>
+    <div className="d-flex">
+      {/* Sidebar */}
+      <aside className="sidebar d-flex flex-column flex-shrink-0 p-3 text-white" style={{ width: "280px" }}>
+        <a href="/" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+          <img
+            src={APP_LOGO_URL}
+            alt="StockMaster"
+            height="32"
+            className="me-2 rounded"
+          />
+          <span className="fs-4 fw-bold">StockMaster</span>
+        </a>
+        <hr className="border-secondary" />
+        
+        <ul className="nav nav-pills flex-column mb-auto">
+          <li className="nav-item mb-1">
+            <NavLink to="/dashboard" className="nav-link text-white">
+              <i className="bi bi-speedometer2 me-2"></i>
               Dashboard
             </NavLink>
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-title">Products</div>
-            <NavLink to="/products" className={navLinkClass}>
+          </li>
+          
+          <li className="nav-item mb-1">
+            <NavLink to="/products" className="nav-link text-white">
+              <i className="bi bi-box-seam me-2"></i>
               Products
             </NavLink>
-          </div>
+          </li>
 
-          <div className="nav-section">
-            <div className="nav-section-title">Operations</div>
-            <NavLink to="/operations/receipts" className={navLinkClass}>
+          <li className="nav-header text-uppercase text-light fw-bold mt-3 mb-2 ps-3" style={{ fontSize: '0.75rem', letterSpacing: '1px', opacity: 0.9 }}>
+            Operations
+          </li>
+          
+          <li className="nav-item mb-1">
+            <NavLink to="/operations/receipts" className="nav-link text-white">
+              <i className="bi bi-arrow-down-circle me-2"></i>
               Receipts
             </NavLink>
-            <NavLink to="/operations/deliveries" className={navLinkClass}>
+          </li>
+          <li className="nav-item mb-1">
+            <NavLink to="/operations/deliveries" className="nav-link text-white">
+              <i className="bi bi-arrow-up-circle me-2"></i>
               Delivery Orders
             </NavLink>
-            <NavLink to="/operations/transfers" className={navLinkClass}>
+          </li>
+          <li className="nav-item mb-1">
+            <NavLink to="/operations/transfers" className="nav-link text-white">
+              <i className="bi bi-arrow-left-right me-2"></i>
               Internal Transfers
             </NavLink>
-            <NavLink to="/operations/adjustments" className={navLinkClass}>
-              Inventory Adjustments
+          </li>
+          <li className="nav-item mb-1">
+            <NavLink to="/operations/adjustments" className="nav-link text-white">
+              <i className="bi bi-sliders me-2"></i>
+              Adjustments
             </NavLink>
-          </div>
+          </li>
 
-          <div className="nav-section">
-            <div className="nav-section-title">History</div>
-            <NavLink to="/ledger" className={navLinkClass}>
+          <li className="nav-header text-uppercase text-light fw-bold mt-3 mb-2 ps-3" style={{ fontSize: '0.75rem', letterSpacing: '1px', opacity: 0.9 }}>
+            Reporting
+          </li>
+
+          <li className="nav-item mb-1">
+            <NavLink to="/ledger" className="nav-link text-white">
+              <i className="bi bi-journal-text me-2"></i>
               Move History
             </NavLink>
-          </div>
+          </li>
 
-          <div className="nav-section">
-            <div className="nav-section-title">Settings</div>
-            <NavLink to="/settings/warehouses" className={navLinkClass}>
-              Warehouses & Locations
+          <li className="nav-header text-uppercase text-light fw-bold mt-3 mb-2 ps-3" style={{ fontSize: '0.75rem', letterSpacing: '1px', opacity: 0.9 }}>
+            Settings
+          </li>
+
+          <li className="nav-item mb-1">
+            <NavLink to="/settings/warehouses" className="nav-link text-white">
+              <i className="bi bi-building me-2"></i>
+              Warehouses
             </NavLink>
-          </div>
-
-          <div className="nav-section">
-            <div className="nav-section-title">Profile</div>
-            <NavLink to="/profile" className={navLinkClass}>
-              My Profile
-            </NavLink>
-            <button
-              type="button"
-              className="nav-link nav-link-button"
-              onClick={logout}
-            >
-              Logout
-            </button>
-          </div>
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="user-chip">
-            <div className="user-avatar">
+          </li>
+        </ul>
+        
+        <hr className="border-secondary" />
+        
+        <div className="dropdown">
+          <a href="#" className="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+            <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style={{ width: '32px', height: '32px' }}>
               {user?.name?.[0]?.toUpperCase() || "U"}
             </div>
-            <div className="user-meta">
-              <div className="user-name">{user?.name || "User"}</div>
-              <div className="user-role">{user?.role || "staff"}</div>
-            </div>
-          </div>
+            <strong>{user?.name || "User"}</strong>
+          </a>
+          <ul className="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+            <li><NavLink className="dropdown-item" to="/profile">Profile</NavLink></li>
+            <li><hr className="dropdown-divider" /></li>
+            <li><button className="dropdown-item" onClick={logout}>Sign out</button></li>
+          </ul>
         </div>
       </aside>
 
-      <main className="main-content">
+      {/* Main Content */}
+      <main className="flex-grow-1 overflow-auto" style={{ height: "100vh", backgroundColor: "var(--cool-gray-bg)" }}>
         <Outlet />
       </main>
     </div>

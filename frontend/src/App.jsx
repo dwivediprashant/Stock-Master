@@ -10,6 +10,8 @@ import RequestResetPage from "./features/auth/RequestResetPage";
 import ResetPasswordPage from "./features/auth/ResetPasswordPage";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import ProfilePage from "./features/profile/ProfilePage";
+import ProductList from "./features/products/ProductList";
+import ProductForm from "./features/products/ProductForm";
 
 function App() {
   return (
@@ -28,14 +30,9 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               {/* Placeholder routes for upcoming modules */}
-              <Route
-                path="/products"
-                element={
-                  <div className="page">
-                    <h1>Products (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/products" element={<ProductList />} />
+              <Route path="/products/new" element={<ProductForm />} />
+              <Route path="/products/:id/edit" element={<ProductForm />} />
               <Route
                 path="/operations/receipts"
                 element={
