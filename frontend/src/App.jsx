@@ -16,6 +16,8 @@ import ReceiptList from "./features/operations/ReceiptList";
 import ReceiptForm from "./features/operations/ReceiptForm";
 import DeliveryList from "./features/operations/DeliveryList";
 import DeliveryForm from "./features/operations/DeliveryForm";
+import TransferList from "./features/operations/TransferList";
+import TransferForm from "./features/operations/TransferForm";
 
 function App() {
   return (
@@ -43,14 +45,9 @@ function App() {
               <Route path="/operations/deliveries" element={<DeliveryList />} />
               <Route path="/operations/deliveries/new" element={<DeliveryForm />} />
               <Route path="/operations/deliveries/:id" element={<DeliveryForm />} />
-              <Route
-                path="/operations/transfers"
-                element={
-                  <div className="page">
-                    <h1>Internal Transfers (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/operations/transfers" element={<TransferList />} />
+              <Route path="/operations/transfers/new" element={<TransferForm />} />
+              <Route path="/operations/transfers/:id" element={<TransferForm />} />
               <Route
                 path="/operations/adjustments"
                 element={

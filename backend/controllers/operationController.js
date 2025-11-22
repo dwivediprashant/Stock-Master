@@ -48,6 +48,7 @@ const createOperation = async (req, res) => {
     let prefix = "WH/OPS";
     if (type === "receipt") prefix = "WH/IN";
     else if (type === "delivery") prefix = "WH/OUT";
+    else if (type === "internal") prefix = "WH/INT";
     
     const reference = `${prefix}/${Date.now().toString().slice(-6)}`;
 
@@ -161,6 +162,35 @@ const validateOperation = async (req, res) => {
           locationFrom: operation.sourceLocation || "WH/Stock",
           locationTo: operation.destinationLocation || "Customer",
           balanceAfter: newStock,
+        });
+
+        // 3. Update Done Quantity
+        item.doneQuantity = item.quantity;
+      }
+    } else if (operation.type === "internal") {
+      for (const item of operation.items) {
+        // 1. Internal Transfer doesn't change TOTAL stock, but we should record the move.
+        // Ideally, we would track stock PER LOCATION, but for this MVP we track total stock.
+        // So we just create a ledger entry showing the move.
+        
+        const product = await Product.findById(item.product._id);
+        
+        // Optional: Check if stock exists globally (or per location if we had that)
+        if (product.currentStock < item.quantity) {
+             // For now, we allow internal moves even if "global" stock is low, 
+             // or we can enforce it. Let's enforce global availability for sanity.
+             throw new Error(`Insufficient stock for product: ${product.name} to transfer.`);
+        }
+
+        // 2. Create Stock Move (Ledger)
+        await StockMove.create({
+          product: item.product._id,
+          description: `Internal Transfer ${operation.reference}`,
+          reference: operation.reference,
+          quantity: item.quantity, // Quantity moved
+          locationFrom: operation.sourceLocation || "WH/Stock",
+          locationTo: operation.destinationLocation || "WH/Production",
+          balanceAfter: product.currentStock, // Balance remains same globally
         });
 
         // 3. Update Done Quantity
