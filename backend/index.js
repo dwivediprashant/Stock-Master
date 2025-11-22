@@ -37,6 +37,7 @@ app.get("/api/health", (req, res) => {
 // Feature routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/operations", require("./routes/operationRoutes"));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
