@@ -62,7 +62,7 @@ const DeliveryList = () => {
           onClick={() => navigate("/operations/deliveries/new")}
           className="btn btn-primary"
         >
-          <i className="bi bi-plus-lg me-2"></i>Create Delivery
+          <i className="bi bi-plus-lg me-2"></i>NEW
         </button>
       </div>
 
@@ -117,8 +117,8 @@ const DeliveryList = () => {
                 <thead className="table-light">
                   <tr>
                     <th className="ps-4">Reference</th>
-                    <th>Customer</th>
-                    <th>Date</th>
+                    <th>Contact</th>
+                    <th>Schedule Date</th>
                     <th>Status</th>
                     <th className="text-end pe-4">Action</th>
                   </tr>
@@ -136,7 +136,7 @@ const DeliveryList = () => {
                       <tr key={delivery._id} onClick={() => navigate(`/operations/deliveries/${delivery._id}`)} style={{ cursor: "pointer" }}>
                         <td className="ps-4 fw-bold text-primary">{delivery.reference}</td>
                         <td>{delivery.partner || "-"}</td>
-                        <td>{new Date(delivery.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(delivery.scheduleDate || delivery.createdAt).toLocaleDateString()}</td>
                         <td>
                           <span className={`badge ${getStatusBadge(delivery.status)}`}>
                             {delivery.status.toUpperCase()}
