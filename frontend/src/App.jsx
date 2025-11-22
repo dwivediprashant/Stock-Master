@@ -20,6 +20,7 @@ import TransferList from "./features/operations/TransferList";
 import TransferForm from "./features/operations/TransferForm";
 import AdjustmentList from "./features/operations/AdjustmentList";
 import AdjustmentForm from "./features/operations/AdjustmentForm";
+import StockLedger from "./features/ledger/StockLedger";
 
 function App() {
   return (
@@ -53,14 +54,7 @@ function App() {
               <Route path="/operations/adjustments" element={<AdjustmentList />} />
               <Route path="/operations/adjustments/new" element={<AdjustmentForm />} />
               <Route path="/operations/adjustments/:id" element={<AdjustmentForm />} />
-              <Route
-                path="/ledger"
-                element={
-                  <div className="page">
-                    <h1>Move History (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/ledger" element={<StockLedger />} />
               <Route
                 path="/settings/warehouses"
                 element={
