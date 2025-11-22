@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { createOperation, getOperation, updateOperation, validateOperation } from "./api";
 import { getProducts } from "../products/api";
 
@@ -30,6 +31,7 @@ const ReceiptForm = () => {
       setProducts(data);
     } catch (err) {
       console.error("Failed to load products");
+      toast.error("Failed to load products list");
     }
   };
 
@@ -47,6 +49,7 @@ const ReceiptForm = () => {
       setStatus(data.status);
     } catch (err) {
       setError("Failed to load receipt");
+      toast.error("Failed to load receipt");
     } finally {
       setLoading(false);
     }
@@ -85,12 +88,18 @@ const ReceiptForm = () => {
     try {
       if (isEditMode) {
         await updateOperation(id, payload);
+        toast.success("Receipt updated");
       } else {
-        await createOperation(payload);
+        const newOp = await createOperation(payload);
+        toast.success("Receipt draft created");
+        navigate(`/operations/receipts/${newOp._id}`);
+        return;
       }
       navigate("/operations/receipts");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save receipt");
+      const msg = err.response?.data?.message || "Failed to save receipt";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -102,9 +111,12 @@ const ReceiptForm = () => {
     setLoading(true);
     try {
       await validateOperation(id);
+      toast.success("Receipt validated and stock updated!");
       navigate("/operations/receipts");
     } catch (err) {
-      setError(err.response?.data?.message || "Validation failed");
+      const msg = err.response?.data?.message || "Validation failed";
+      setError(msg);
+      toast.error(msg);
       setLoading(false);
     }
   };

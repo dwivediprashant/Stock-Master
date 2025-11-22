@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { APP_LOGO_URL } from "../../config/branding";
 
@@ -24,10 +25,12 @@ const LoginPage = () => {
     setLoading(true);
     try {
       await login(email, password);
+      toast.success("Welcome back!");
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const message = err?.response?.data?.message || "Failed to login";
       setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -79,6 +82,25 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
+
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center">
+                  <label className="form-label" htmlFor="password">Password</label>
+                  <Link to="/forgot-password" className="text-decoration-none small text-primary">Forgot Password?</Link>
+                </div>
+                <div className="input-group">
+                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
+                  <input
+                    type="password"
+                    className="form-control border-start-0 ps-0"
+                    id="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
               <button
                 type="submit"
                 className="btn btn-primary w-100 py-2 mb-3 fw-bold"
@@ -94,9 +116,8 @@ const LoginPage = () => {
                 )}
               </button>
 
-              <div className="d-flex justify-content-between align-items-center mt-4">
+              <div className="text-center mt-4">
                 <Link to="/signup" className="text-decoration-none text-primary fw-medium">Create account</Link>
-                <Link to="/reset/request" className="text-decoration-none text-muted small">Forgot password?</Link>
               </div>
             </form>
           </div>

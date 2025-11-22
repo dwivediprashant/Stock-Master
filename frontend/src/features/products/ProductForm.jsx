@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { createProduct, getProduct, updateProduct } from "./api";
 
 const ProductForm = () => {
@@ -40,6 +41,7 @@ const ProductForm = () => {
       });
     } catch (err) {
       setError("Failed to load product details");
+      toast.error("Failed to load product details");
       console.error(err);
     } finally {
       setLoading(false);
@@ -62,12 +64,16 @@ const ProductForm = () => {
     try {
       if (isEditMode) {
         await updateProduct(id, formData);
+        toast.success("Product updated successfully");
       } else {
         await createProduct(formData);
+        toast.success("Product created successfully");
       }
       navigate("/products");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save product");
+      const msg = err.response?.data?.message || "Failed to save product";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

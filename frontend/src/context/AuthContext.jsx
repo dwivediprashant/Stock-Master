@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { authApi } from "../features/auth/api";
+import { login as apiLogin, signup as apiSignup, getMe } from "../features/auth/api";
 import apiClient, { setAuthToken } from "../lib/apiClient";
 
 const AuthContext = createContext(null);
@@ -20,10 +20,9 @@ export const AuthProvider = ({ children }) => {
 
     setAuthToken(storedToken);
 
-    authApi
-      .getMe()
-      .then((res) => {
-        setUser(res.data.user);
+    getMe()
+      .then((data) => {
+        setUser(data.user);
         setToken(storedToken);
       })
       .catch(() => {
@@ -44,13 +43,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (name, email, password) => {
-    const response = await authApi.signup({ name, email, password });
-    handleAuthSuccess(response.data);
+    const data = await apiSignup({ name, email, password });
+    handleAuthSuccess(data); // api returns { user, token } directly in data
   };
 
   const login = async (email, password) => {
-    const response = await authApi.login({ email, password });
-    handleAuthSuccess(response.data);
+    const data = await apiLogin({ email, password });
+    handleAuthSuccess(data);
   };
 
   const logout = () => {
@@ -59,12 +58,6 @@ export const AuthProvider = ({ children }) => {
     window.localStorage.removeItem(STORAGE_KEY);
     setAuthToken(null);
   };
-
-  const requestPasswordReset = (email) =>
-    authApi.requestPasswordReset({ email }).then((res) => res.data);
-
-  const resetPassword = (email, otp, newPassword) =>
-    authApi.resetPassword({ email, otp, newPassword }).then((res) => res.data);
 
   const value = useMemo(
     () => ({
@@ -75,8 +68,6 @@ export const AuthProvider = ({ children }) => {
       signup,
       login,
       logout,
-      requestPasswordReset,
-      resetPassword,
       apiClient,
     }),
     [user, token, initializing]

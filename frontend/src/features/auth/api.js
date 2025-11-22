@@ -10,6 +10,11 @@ export const signup = async (userData) => {
   return data;
 };
 
+export const getMe = async () => {
+  const { data } = await apiClient.get("/auth/me");
+  return data;
+};
+
 export const forgotPassword = async (email) => {
   const { data } = await apiClient.post("/auth/forgot-password", { email });
   return data;

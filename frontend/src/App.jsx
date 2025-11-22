@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 
 import { AuthProvider } from "./context/AuthContext";
@@ -25,6 +26,7 @@ import Dashboard from "./features/dashboard/Dashboard";
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
       <AuthProvider>
         <Routes>
           {/* Public auth routes */}
