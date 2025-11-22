@@ -8,9 +8,12 @@ const {
   validateOperation,
 } = require("../controllers/operationController");
 const authMiddleware = require("../middleware/authMiddleware");
+const checkRole = require("../middleware/roleMiddleware");
 
-router.route("/").get(authMiddleware, getOperations).post(authMiddleware, createOperation);
-router.route("/:id").get(authMiddleware, getOperation).put(authMiddleware, updateOperation);
-router.post("/:id/validate", authMiddleware, validateOperation);
+router.get("/", authMiddleware, getOperations);
+router.get("/:id", authMiddleware, getOperation);
+router.post("/", authMiddleware, createOperation); // Staff can create drafts
+router.put("/:id", authMiddleware, updateOperation);
+router.post("/:id/validate", authMiddleware, checkRole(["manager"]), validateOperation); // Only managers can validate
 
 module.exports = router;

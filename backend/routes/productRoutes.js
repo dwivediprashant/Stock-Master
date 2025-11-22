@@ -10,14 +10,14 @@ const {
   getUnits,
 } = require("../controllers/productController");
 const authMiddleware = require("../middleware/authMiddleware");
+const checkRole = require("../middleware/roleMiddleware");
 
-router.route("/").get(authMiddleware, getProducts).post(authMiddleware, createProduct);
+router.get("/", authMiddleware, getProducts);
+router.post("/", authMiddleware, checkRole(["manager"]), createProduct);
 router.get("/categories", authMiddleware, getCategories);
 router.get("/units", authMiddleware, getUnits);
-router
-  .route("/:id")
-  .get(authMiddleware, getProduct)
-  .put(authMiddleware, updateProduct)
-  .delete(authMiddleware, deleteProduct);
+router.get("/:id", authMiddleware, getProduct);
+router.put("/:id", authMiddleware, checkRole(["manager"]), updateProduct);
+router.delete("/:id", authMiddleware, checkRole(["manager"]), deleteProduct);
 
 module.exports = router;
