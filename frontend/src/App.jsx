@@ -18,6 +18,8 @@ import DeliveryList from "./features/operations/DeliveryList";
 import DeliveryForm from "./features/operations/DeliveryForm";
 import TransferList from "./features/operations/TransferList";
 import TransferForm from "./features/operations/TransferForm";
+import AdjustmentList from "./features/operations/AdjustmentList";
+import AdjustmentForm from "./features/operations/AdjustmentForm";
 
 function App() {
   return (
@@ -48,14 +50,9 @@ function App() {
               <Route path="/operations/transfers" element={<TransferList />} />
               <Route path="/operations/transfers/new" element={<TransferForm />} />
               <Route path="/operations/transfers/:id" element={<TransferForm />} />
-              <Route
-                path="/operations/adjustments"
-                element={
-                  <div className="page">
-                    <h1>Inventory Adjustments (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/operations/adjustments" element={<AdjustmentList />} />
+              <Route path="/operations/adjustments/new" element={<AdjustmentForm />} />
+              <Route path="/operations/adjustments/:id" element={<AdjustmentForm />} />
               <Route
                 path="/ledger"
                 element={

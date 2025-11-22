@@ -49,6 +49,7 @@ const createOperation = async (req, res) => {
     if (type === "receipt") prefix = "WH/IN";
     else if (type === "delivery") prefix = "WH/OUT";
     else if (type === "internal") prefix = "WH/INT";
+    else if (type === "adjustment") prefix = "WH/ADJ";
     
     const reference = `${prefix}/${Date.now().toString().slice(-6)}`;
 
@@ -191,6 +192,30 @@ const validateOperation = async (req, res) => {
           locationFrom: operation.sourceLocation || "WH/Stock",
           locationTo: operation.destinationLocation || "WH/Production",
           balanceAfter: product.currentStock, // Balance remains same globally
+        });
+
+        // 3. Update Done Quantity
+        item.doneQuantity = item.quantity;
+      }
+    } else if (operation.type === "adjustment") {
+      for (const item of operation.items) {
+        // 1. Update Product Stock (Add difference)
+        const product = await Product.findById(item.product._id);
+        const oldStock = product.currentStock;
+        const newStock = oldStock + item.quantity; // quantity can be negative
+        
+        product.currentStock = newStock;
+        await product.save();
+
+        // 2. Create Stock Move (Ledger)
+        await StockMove.create({
+          product: item.product._id,
+          description: `Adjustment ${operation.reference}`,
+          reference: operation.reference,
+          quantity: item.quantity,
+          locationFrom: item.quantity >= 0 ? "Virtual/Adjustment" : "WH/Stock",
+          locationTo: item.quantity >= 0 ? "WH/Stock" : "Virtual/Adjustment",
+          balanceAfter: newStock,
         });
 
         // 3. Update Done Quantity
