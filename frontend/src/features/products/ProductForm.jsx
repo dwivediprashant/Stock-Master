@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
+import {
+  canPerformAction,
+  PERMISSIONS,
+  getPermissionErrorMessage,
+} from "../../utils/permissions";
 import { createProduct, getProduct, updateProduct } from "./api";
 
 const ProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!id;
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -20,11 +27,31 @@ const ProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Check permissions
+  const canCreate = canPerformAction(user?.role, PERMISSIONS.CREATE_PRODUCT);
+  const canUpdate = canPerformAction(user?.role, PERMISSIONS.UPDATE_PRODUCT);
+
   useEffect(() => {
+    // Temporarily disable permission checks for debugging
+    /*
+    // Check permissions on component mount
+    if (!isEditMode && !canCreate) {
+      toast.error(getPermissionErrorMessage('create products'));
+      navigate('/products');
+      return;
+    }
+    
+    if (isEditMode && !canUpdate) {
+      toast.error(getPermissionErrorMessage('update products'));
+      navigate('/products');
+      return;
+    }
+    */
+
     if (isEditMode) {
       fetchProduct();
     }
-  }, [id]);
+  }, [id, isEditMode, navigate]);
 
   const fetchProduct = async () => {
     try {
@@ -80,7 +107,11 @@ const ProductForm = () => {
   };
 
   if (loading && isEditMode && !formData.name) {
-    return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
+    return (
+      <div className="text-center p-5">
+        <div className="spinner-border text-primary"></div>
+      </div>
+    );
   }
 
   return (
@@ -89,18 +120,23 @@ const ProductForm = () => {
         <div className="col-lg-8">
           <div className="card shadow-sm border-0">
             <div className="card-header bg-white py-3">
-              <h1 className="h4 mb-0">{isEditMode ? "Edit Product" : "Create New Product"}</h1>
+              <h1 className="h4 mb-0">
+                {isEditMode ? "Edit Product" : "Create New Product"}
+              </h1>
             </div>
             <div className="card-body p-4">
               {error && (
                 <div className="alert alert-danger mb-4">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>{error}
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {error}
                 </div>
               )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                  <label className="form-label" htmlFor="name">Product Name</label>
+                  <label className="form-label" htmlFor="name">
+                    Product Name
+                  </label>
                   <input
                     className="form-control"
                     id="name"
@@ -115,7 +151,9 @@ const ProductForm = () => {
 
                 <div className="row mb-3">
                   <div className="col-md-6">
-                    <label className="form-label" htmlFor="sku">SKU / Code</label>
+                    <label className="form-label" htmlFor="sku">
+                      SKU / Code
+                    </label>
                     <input
                       className="form-control"
                       id="sku"
@@ -128,7 +166,9 @@ const ProductForm = () => {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label" htmlFor="category">Category</label>
+                    <label className="form-label" htmlFor="category">
+                      Category
+                    </label>
                     <input
                       className="form-control"
                       id="category"
@@ -144,7 +184,9 @@ const ProductForm = () => {
 
                 <div className="row mb-3">
                   <div className="col-md-6">
-                    <label className="form-label" htmlFor="unitOfMeasure">Unit of Measure</label>
+                    <label className="form-label" htmlFor="unitOfMeasure">
+                      Unit of Measure
+                    </label>
                     <input
                       className="form-control"
                       id="unitOfMeasure"
@@ -157,7 +199,9 @@ const ProductForm = () => {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label className="form-label" htmlFor="price">Price</label>
+                    <label className="form-label" htmlFor="price">
+                      Price
+                    </label>
                     <div className="input-group">
                       <span className="input-group-text">$</span>
                       <input
@@ -175,7 +219,9 @@ const ProductForm = () => {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label" htmlFor="minStockLevel">Minimum Stock Level (Alert Threshold)</label>
+                  <label className="form-label" htmlFor="minStockLevel">
+                    Minimum Stock Level (Alert Threshold)
+                  </label>
                   <input
                     className="form-control"
                     id="minStockLevel"
@@ -185,11 +231,15 @@ const ProductForm = () => {
                     value={formData.minStockLevel}
                     onChange={handleChange}
                   />
-                  <div className="form-text text-muted">Alerts will be triggered when stock falls below this value.</div>
+                  <div className="form-text text-muted">
+                    Alerts will be triggered when stock falls below this value.
+                  </div>
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label" htmlFor="description">Description</label>
+                  <label className="form-label" htmlFor="description">
+                    Description
+                  </label>
                   <textarea
                     className="form-control"
                     id="description"
@@ -216,11 +266,17 @@ const ProductForm = () => {
                   >
                     {loading ? (
                       <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
                         Saving...
                       </>
+                    ) : isEditMode ? (
+                      "Update Product"
                     ) : (
-                      isEditMode ? "Update Product" : "Create Product"
+                      "Create Product"
                     )}
                   </button>
                 </div>

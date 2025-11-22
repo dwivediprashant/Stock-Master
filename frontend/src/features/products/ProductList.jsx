@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { canPerformAction, PERMISSIONS } from "../../utils/permissions";
 import { getProducts, deleteProduct } from "./api";
 
 const ProductList = () => {
@@ -7,6 +9,15 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Check permissions
+  const canCreate = canPerformAction(user?.role, PERMISSIONS.CREATE_PRODUCT);
+  const canDelete = canPerformAction(user?.role, PERMISSIONS.DELETE_PRODUCT);
+
+  // Debug logging
+  console.log("User role:", user?.role);
+  console.log("Can create product:", canCreate);
 
   useEffect(() => {
     fetchProducts();
@@ -36,19 +47,34 @@ const ProductList = () => {
     }
   };
 
-  if (loading) return <div className="p-4 text-center"><div className="spinner-border text-primary" role="status"></div></div>;
+  if (loading)
+    return (
+      <div className="p-4 text-center">
+        <div className="spinner-border text-primary" role="status"></div>
+      </div>
+    );
   if (error) return <div className="alert alert-danger m-4">{error}</div>;
 
   return (
     <div className="container-fluid p-4">
       <div className="page-header">
         <h1 className="h3">Products</h1>
+        {/* Temporarily show button always for debugging */}
         <button
           onClick={() => navigate("/products/new")}
           className="btn btn-primary"
         >
           <i className="bi bi-plus-lg me-2"></i>Add Product
         </button>
+        {/* Original conditional button */}
+        {/* {canCreate && (
+          <button
+            onClick={() => navigate("/products/new")}
+            className="btn btn-primary"
+          >
+            <i className="bi bi-plus-lg me-2"></i>Add Product
+          </button>
+        )} */}
       </div>
 
       <div className="card border-0 shadow-sm">
@@ -82,17 +108,29 @@ const ProductList = () => {
                           {product.description?.substring(0, 30)}...
                         </small>
                       </td>
-                      <td><span className="badge bg-light text-dark border">{product.sku}</span></td>
+                      <td>
+                        <span className="badge bg-light text-dark border">
+                          {product.sku}
+                        </span>
+                      </td>
                       <td>{product.category}</td>
                       <td>
-                        <span className={`badge ${product.currentStock <= product.minStockLevel ? 'bg-warning text-dark' : 'bg-success'}`}>
+                        <span
+                          className={`badge ${
+                            product.currentStock <= product.minStockLevel
+                              ? "bg-warning text-dark"
+                              : "bg-success"
+                          }`}
+                        >
                           {product.currentStock} {product.unitOfMeasure}
                         </span>
                       </td>
                       <td>${product.price?.toFixed(2)}</td>
                       <td className="text-end pe-4">
                         <button
-                          onClick={() => navigate(`/products/${product._id}/edit`)}
+                          onClick={() =>
+                            navigate(`/products/${product._id}/edit`)
+                          }
                           className="btn btn-sm btn-outline-secondary me-2"
                           title="Edit"
                         >
@@ -102,6 +140,11 @@ const ProductList = () => {
                           onClick={() => handleDelete(product._id)}
                           className="btn btn-sm btn-outline-danger"
                           title="Delete"
+                          disabled={!canDelete}
+                          style={{
+                            opacity: canDelete ? 1 : 0.5,
+                            cursor: canDelete ? "pointer" : "not-allowed",
+                          }}
                         >
                           <i className="bi bi-trash"></i>
                         </button>

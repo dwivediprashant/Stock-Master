@@ -78,6 +78,27 @@ const ReceiptForm = () => {
     setFormData(prev => ({ ...prev, items: newItems }));
   };
 
+  const validatePayload = (payload) => {
+    const {
+      partner,
+      scheduleDate,
+      items,
+    } = payload;
+
+    if (!partner) throw new Error("Partner is required");
+    if (!scheduleDate) throw new Error("Schedule date is required");
+
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error("At least one product must be added");
+    }
+
+    items.forEach((it, idx) => {
+      if (!it.product) throw new Error(`Item #${idx + 1}: product is required`);
+      if (!it.quantity || it.quantity <= 0)
+        throw new Error(`Item #${idx + 1}: quantity must be > 0`);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -91,6 +112,8 @@ const ReceiptForm = () => {
     };
 
     try {
+      validatePayload(payload);
+
       if (isEditMode) {
         await updateOperation(id, payload);
         toast.success("Receipt updated");
@@ -102,7 +125,7 @@ const ReceiptForm = () => {
       }
       loadReceipt();
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to save receipt";
+      const msg = err.response?.data?.message || err.message || "Failed to save receipt";
       toast.error(msg);
     } finally {
       setLoading(false);

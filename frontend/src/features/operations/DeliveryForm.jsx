@@ -82,6 +82,31 @@ const DeliveryForm = () => {
     setFormData(prev => ({ ...prev, items: newItems }));
   };
 
+  const validatePayload = (payload) => {
+    const {
+      partner,
+      deliveryAddress,
+      availableDate,
+      destinationType,
+      items,
+    } = payload;
+
+    if (!partner) throw new Error("Partner (customer) is required");
+    if (!deliveryAddress) throw new Error("Delivery address is required");
+    if (!availableDate) throw new Error("Available date is required");
+    if (!destinationType) throw new Error("Destination type is required");
+
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error("At least one product must be added");
+    }
+
+    items.forEach((it, idx) => {
+      if (!it.product) throw new Error(`Item #${idx + 1}: product is required`);
+      if (!it.quantity || it.quantity <= 0)
+        throw new Error(`Item #${idx + 1}: quantity must be > 0`);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -97,6 +122,8 @@ const DeliveryForm = () => {
     };
 
     try {
+      validatePayload(payload);
+      
       if (isEditMode) {
         await updateOperation(id, payload);
         toast.success("Delivery updated");
@@ -108,7 +135,7 @@ const DeliveryForm = () => {
       }
       loadDelivery();
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to save delivery";
+      const msg = err.response?.data?.message || err.message || "Failed to save delivery";
       toast.error(msg);
     } finally {
       setLoading(false);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { getLocations, getWarehouses, createLocation, updateLocation, deleteLocation } from "./locationApi";
+import { getLocations, createLocation, updateLocation, deleteLocation } from "./locationApi";
+import { getWarehouses } from "./api";
 
 const LocationPage = () => {
   const [locations, setLocations] = useState([]);

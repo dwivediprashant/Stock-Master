@@ -80,7 +80,7 @@ const MainLayout = () => {
           </li>
 
           <li className="nav-item mb-1">
-            <NavLink to="/settings/warehouses" className="nav-link text-white">
+            <NavLink to="/warehouses" className="nav-link text-white">
               <i className="bi bi-building me-2"></i>
               Warehouses
             </NavLink>
