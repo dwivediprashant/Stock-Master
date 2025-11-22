@@ -25,6 +25,10 @@ const stockOperationSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    responsible: {
+      type: String,
+      trim: true,
+    },
     sourceLocation: {
       type: String,
       default: "Vendor", // Default for receipts

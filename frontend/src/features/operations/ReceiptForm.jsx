@@ -11,12 +11,14 @@ const ReceiptForm = () => {
 
   const [formData, setFormData] = useState({
     partner: "",
+    responsible: "",
+    scheduleDate: new Date().toISOString().split('T')[0],
     items: [],
   });
+  const [reference, setReference] = useState("");
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState("draft");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadProducts();
@@ -39,8 +41,11 @@ const ReceiptForm = () => {
     try {
       setLoading(true);
       const data = await getOperation(id);
+      setReference(data.reference);
       setFormData({
         partner: data.partner || "",
+        responsible: data.responsible || "",
+        scheduleDate: data.scheduleDate ? new Date(data.scheduleDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         items: data.items.map(item => ({
           product: item.product._id,
           quantity: item.quantity
@@ -48,7 +53,6 @@ const ReceiptForm = () => {
       });
       setStatus(data.status);
     } catch (err) {
-      setError("Failed to load receipt");
       toast.error("Failed to load receipt");
     } finally {
       setLoading(false);
@@ -76,12 +80,13 @@ const ReceiptForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     const payload = {
       type: "receipt",
       partner: formData.partner,
+      responsible: formData.responsible,
+      scheduleDate: formData.scheduleDate,
       items: formData.items,
     };
 
@@ -95,10 +100,9 @@ const ReceiptForm = () => {
         navigate(`/operations/receipts/${newOp._id}`);
         return;
       }
-      navigate("/operations/receipts");
+      loadReceipt();
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to save receipt";
-      setError(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -106,125 +110,206 @@ const ReceiptForm = () => {
   };
 
   const handleValidate = async () => {
-    if (!window.confirm("This will update stock levels permanently. Continue?")) return;
-    
-    setLoading(true);
     try {
+      setLoading(true);
       await validateOperation(id);
-      toast.success("Receipt validated and stock updated!");
-      navigate("/operations/receipts");
+      toast.success("Receipt validated successfully");
+      loadReceipt();
     } catch (err) {
-      const msg = err.response?.data?.message || "Validation failed";
-      setError(msg);
-      toast.error(msg);
+      toast.error("Failed to validate receipt");
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading && isEditMode && !formData.partner) return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
+  const handleCancel = async () => {
+    if (window.confirm("Are you sure you want to cancel this receipt?")) {
+      try {
+        setLoading(true);
+        await updateOperation(id, { status: "canceled" });
+        toast.success("Receipt canceled");
+        navigate("/operations/receipts");
+      } catch (err) {
+        toast.error("Failed to cancel receipt");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
-  const isReadOnly = status === "done";
+  if (loading && isEditMode) {
+    return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
+  }
 
   return (
     <div className="container-fluid p-4">
-      <div className="row justify-content-center">
-        <div className="col-lg-10">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1 className="h3">
-              {isEditMode ? `Receipt ${status === 'done' ? '(Validated)' : ''}` : "New Receipt"}
-            </h1>
-            <div>
-              {isEditMode && status === 'draft' && (
-                <button onClick={handleValidate} className="btn btn-success me-2">
-                  <i className="bi bi-check-circle me-2"></i>Validate
-                </button>
-              )}
-              <button onClick={() => navigate("/operations/receipts")} className="btn btn-outline-secondary">
-                Back
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 className="h3 fw-bold mb-1">Receipt</h1>
+          {reference && <p className="text-muted mb-0">{reference}</p>}
+        </div>
+        <div className="d-flex gap-2">
+          {isEditMode && status === "draft" && (
+            <button className="btn btn-success" onClick={handleValidate} disabled={loading}>
+              <i className="bi bi-check-circle me-2"></i>Validate
+            </button>
+          )}
+          {isEditMode && status !== "canceled" && (
+            <>
+              <button className="btn btn-outline-secondary" disabled={loading}>
+                <i className="bi bi-printer me-2"></i>Print
               </button>
-            </div>
-          </div>
+              <button className="btn btn-danger" onClick={handleCancel} disabled={loading}>
+                <i className="bi bi-x-circle me-2"></i>Cancel
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              {error && <div className="alert alert-danger">{error}</div>}
+      {/* Status Badge */}
+      {isEditMode && (
+        <div className="mb-3">
+          <span className={`badge ${status === 'draft' ? 'bg-info' : status === 'done' ? 'bg-success' : 'bg-secondary'} px-3 py-2`}>
+            {status.toUpperCase()}
+          </span>
+        </div>
+      )}
 
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="form-label">Vendor / Supplier</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.partner}
-                    onChange={(e) => setFormData({ ...formData, partner: e.target.value })}
-                    placeholder="e.g. Acme Corp"
-                    disabled={isReadOnly}
-                    required
-                  />
-                </div>
+      <form onSubmit={handleSubmit}>
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="row g-3">
+              {/* Partner */}
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Partner</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.partner}
+                  onChange={(e) => setFormData({ ...formData, partner: e.target.value })}
+                  placeholder="Vendor/Supplier name"
+                  required
+                />
+              </div>
 
-                <h5 className="mb-3 border-bottom pb-2">Products</h5>
-                
-                {formData.items.map((item, index) => (
-                  <div key={index} className="row mb-2 align-items-end">
-                    <div className="col-md-6">
-                      <label className="form-label small text-muted">Product</label>
-                      <select
-                        className="form-select"
-                        value={item.product}
-                        onChange={(e) => handleItemChange(index, "product", e.target.value)}
-                        disabled={isReadOnly}
-                        required
-                      >
-                        <option value="">Select Product</option>
-                        {products.map(p => (
-                          <option key={p._id} value={p._id}>{p.name} ({p.sku})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-md-3">
-                      <label className="form-label small text-muted">Quantity</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))}
-                        min="1"
-                        disabled={isReadOnly}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-2">
-                       {/* Unit display could go here if we fetched full product details for items */}
-                    </div>
-                    <div className="col-md-1 text-end">
-                      {!isReadOnly && (
-                        <button type="button" onClick={() => handleRemoveItem(index)} className="btn btn-sm btn-outline-danger">
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+              {/* Responsible */}
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Responsible</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.responsible}
+                  onChange={(e) => setFormData({ ...formData, responsible: e.target.value })}
+                  placeholder="Person responsible"
+                />
+              </div>
 
-                {!isReadOnly && (
-                  <button type="button" onClick={handleAddItem} className="btn btn-sm btn-outline-primary mt-2">
-                    <i className="bi bi-plus"></i> Add Line
-                  </button>
-                )}
-
-                {!isReadOnly && (
-                  <div className="mt-5 pt-3 border-top text-end">
-                    <button type="submit" className="btn btn-primary px-4" disabled={loading}>
-                      {loading ? "Saving..." : "Save Draft"}
-                    </button>
-                  </div>
-                )}
-              </form>
+              {/* Schedule Date */}
+              <div className="col-md-4">
+                <label className="form-label fw-semibold">Schedule Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formData.scheduleDate}
+                  onChange={(e) => setFormData({ ...formData, scheduleDate: e.target.value })}
+                  required
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Products Section */}
+        <div className="card shadow-sm mb-4">
+          <div className="card-header bg-white border-bottom">
+            <h5 className="mb-0 fw-bold">Products</h5>
+          </div>
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th className="ps-4">Product</th>
+                    <th style={{ width: '150px' }}>Quantity</th>
+                    <th style={{ width: '80px' }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.items.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="text-center py-4 text-muted">
+                        No products added yet. Click "New Product" to add.
+                      </td>
+                    </tr>
+                  ) : (
+                    formData.items.map((item, index) => (
+                      <tr key={index}>
+                        <td className="ps-4">
+                          <select
+                            className="form-select"
+                            value={item.product}
+                            onChange={(e) => handleItemChange(index, "product", e.target.value)}
+                            required
+                          >
+                            <option value="">Select product...</option>
+                            {products.map((product) => (
+                              <option key={product._id} value={product._id}>
+                                [{product.sku}] {product.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(index, "quantity", parseInt(e.target.value) || 0)}
+                            min="1"
+                            required
+                          />
+                        </td>
+                        <td className="text-center">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleRemoveItem(index)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="card-footer bg-white border-top">
+              <button type="button" className="btn btn-outline-primary" onClick={handleAddItem}>
+                <i className="bi bi-plus-lg me-2"></i>New Product
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        {(!isEditMode || status === "draft") && (
+          <div className="d-flex gap-2">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? "Saving..." : isEditMode ? "Update Receipt" : "Create Receipt"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate("/operations/receipts")}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </form>
     </div>
   );
 };
