@@ -37,7 +37,8 @@ app.get("/api/health", (req, res) => {
 // Feature routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/operations", require("./routes/operationRoutes"));
+app.use("/api/warehouses", require("./routes/warehouseRoutes"));
+app.use("/api/locations", require("./routes/locationRoutes"));
 app.use("/api/moves", require("./routes/stockMoveRoutes"));
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 
