@@ -12,6 +12,8 @@ import DashboardPage from "./features/dashboard/DashboardPage";
 import ProfilePage from "./features/profile/ProfilePage";
 import ProductList from "./features/products/ProductList";
 import ProductForm from "./features/products/ProductForm";
+import ReceiptList from "./features/operations/ReceiptList";
+import ReceiptForm from "./features/operations/ReceiptForm";
 
 function App() {
   return (
@@ -33,14 +35,9 @@ function App() {
               <Route path="/products" element={<ProductList />} />
               <Route path="/products/new" element={<ProductForm />} />
               <Route path="/products/:id/edit" element={<ProductForm />} />
-              <Route
-                path="/operations/receipts"
-                element={
-                  <div className="page">
-                    <h1>Receipts (coming soon)</h1>
-                  </div>
-                }
-              />
+              <Route path="/operations/receipts" element={<ReceiptList />} />
+              <Route path="/operations/receipts/new" element={<ReceiptForm />} />
+              <Route path="/operations/receipts/:id" element={<ReceiptForm />} />
               <Route
                 path="/operations/deliveries"
                 element={
