@@ -8,10 +8,9 @@ const LoginPage = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,15 +20,13 @@ const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError("");
     setLoading(true);
     try {
-      await login(email, password);
+      await login(loginId, password);
       toast.success("Welcome back!");
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const message = err?.response?.data?.message || "Failed to login";
-      setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
@@ -59,35 +56,25 @@ const LoginPage = () => {
             <h2 className="fw-bold mb-2 text-navy">Welcome Back</h2>
             <p className="text-muted mb-4">Please sign in to your account</p>
 
-            {error && (
-              <div className="alert alert-danger d-flex align-items-center" role="alert">
-                <i className="bi bi-exclamation-circle-fill me-2"></i>
-                <div>{error}</div>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label" htmlFor="email">Email Address</label>
+                <label className="form-label" htmlFor="loginId">Login Id</label>
                 <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-envelope text-muted"></i></span>
+                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-person text-muted"></i></span>
                   <input
-                    type="email"
+                    type="text"
                     className="form-control border-start-0 ps-0"
-                    id="email"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="loginId"
+                    placeholder="Enter your login ID"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
                     required
                   />
                 </div>
               </div>
 
-              <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <label className="form-label" htmlFor="password">Password</label>
-                  <Link to="/forgot-password" className="text-decoration-none small text-primary">Forgot Password?</Link>
-                </div>
+              <div className="mb-3">
+                <label className="form-label" htmlFor="password">Password</label>
                 <div className="input-group">
                   <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
                   <input
@@ -101,6 +88,7 @@ const LoginPage = () => {
                   />
                 </div>
               </div>
+
               <button
                 type="submit"
                 className="btn btn-primary w-100 py-2 mb-3 fw-bold"
@@ -112,12 +100,14 @@ const LoginPage = () => {
                     Signing in...
                   </>
                 ) : (
-                  "Sign In"
+                  "SIGN IN"
                 )}
               </button>
 
-              <div className="text-center mt-4">
-                <Link to="/signup" className="text-decoration-none text-primary fw-medium">Create account</Link>
+              <div className="text-center mt-3">
+                <Link to="/forgot-password" className="text-decoration-none text-muted small me-2">Forget Password?</Link>
+                <span className="text-muted">|</span>
+                <Link to="/signup" className="text-decoration-none text-primary small ms-2">Sign Up</Link>
               </div>
             </form>
           </div>

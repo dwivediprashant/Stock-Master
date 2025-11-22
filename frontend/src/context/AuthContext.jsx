@@ -47,8 +47,8 @@ export const AuthProvider = ({ children }) => {
     handleAuthSuccess(data); // api returns { user, token } directly in data
   };
 
-  const login = async (email, password) => {
-    const data = await apiLogin({ email, password });
+  const login = async (loginId, password) => {
+    const data = await apiLogin({ loginId, password });
     handleAuthSuccess(data);
   };
 

@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    loginId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      minlength: 6,
+      maxlength: 12,
+    },
     name: {
       type: String,
       required: true,
