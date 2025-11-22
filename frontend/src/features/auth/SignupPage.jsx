@@ -61,134 +61,113 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="container-fluid vh-100">
-      <div className="row h-100">
-        {/* Brand Panel */}
-        <div className="col-md-6 d-none d-md-flex bg-navy text-white align-items-center justify-content-center flex-column p-5">
+    <div 
+      className="min-vh-100 d-flex align-items-center justify-content-center py-4" 
+      style={{ 
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%)',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="card shadow-lg border-0" style={{ width: '100%', maxWidth: '450px' }}>
+        <div className="card-body p-5">
+          {/* App Logo */}
           <div className="text-center mb-4">
-            <img src={APP_LOGO_URL} alt="Logo" style={{ height: '80px', borderRadius: '12px' }} className="mb-4 shadow-lg" />
-            <h1 className="display-4 fw-bold mb-3">StockMaster</h1>
-            <p className="lead text-white-50">Join us and take control of your inventory management.</p>
+            <img 
+              src={APP_LOGO_URL} 
+              alt="App Logo" 
+              style={{ height: '60px', borderRadius: '8px' }} 
+              className="mb-3"
+            />
+            <h4 className="fw-bold text-navy">Sign Up</h4>
           </div>
-        </div>
 
-        {/* Form Panel */}
-        <div className="col-md-6 d-flex align-items-center justify-content-center bg-white">
-          <div className="w-100 p-4 p-lg-5" style={{ maxWidth: '450px' }}>
-            <div className="text-center mb-5 d-md-none">
-              <img src={APP_LOGO_URL} alt="Logo" height="60" className="mb-3" />
-              <h2 className="fw-bold text-navy">StockMaster</h2>
+          <form onSubmit={handleSubmit}>
+            {/* Login Id */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Enter Login Id</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="6-12 characters (unique)"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                minLength={6}
+                maxLength={12}
+                required
+              />
+              <small className="text-muted">Login ID must be unique and 6-12 characters</small>
             </div>
 
-            <h2 className="fw-bold mb-2 text-navy">Create Account</h2>
-            <p className="text-muted mb-4">Get started with your free account</p>
+            {/* Name */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Enter Name</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="loginId">Enter Login Id</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-person-badge text-muted"></i></span>
-                  <input
-                    type="text"
-                    className="form-control border-start-0 ps-0"
-                    id="loginId"
-                    placeholder="6-12 characters (unique)"
-                    value={loginId}
-                    onChange={(e) => setLoginId(e.target.value)}
-                    minLength={6}
-                    maxLength={12}
-                    required
-                  />
-                </div>
-                <small className="text-muted">Must be unique and 6-12 characters long</small>
-              </div>
+            {/* Email */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Enter Email Id</label>
+              <input
+                type="email"
+                className="form-control"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <small className="text-muted">Email ID should be unique in database</small>
+            </div>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="name">Enter Name</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-person text-muted"></i></span>
-                  <input
-                    type="text"
-                    className="form-control border-start-0 ps-0"
-                    id="name"
-                    placeholder="Your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+            {/* Password */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Enter Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Min 8 chars, 1 uppercase, 1 lowercase, 1 special"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="email">Enter Email Id</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-envelope text-muted"></i></span>
-                  <input
-                    type="email"
-                    className="form-control border-start-0 ps-0"
-                    id="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <small className="text-muted">Email must be unique in database</small>
-              </div>
+            {/* Re-Enter Password */}
+            <div className="mb-4">
+              <label className="form-label fw-semibold">Re-Enter Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="password">Enter Password</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
-                  <input
-                    type="password"
-                    className="form-control border-start-0 ps-0"
-                    id="password"
-                    placeholder="Min 8 chars, uppercase, lowercase, special char"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+            {/* Sign Up Button */}
+            <button
+              type="submit"
+              className="btn btn-primary w-100 py-2 fw-bold mb-3"
+              disabled={loading}
+            >
+              {loading ? "Creating Account..." : "SIGN UP"}
+            </button>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="confirmPassword">Re-Enter Password</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock-fill text-muted"></i></span>
-                  <input
-                    type="password"
-                    className="form-control border-start-0 ps-0"
-                    id="confirmPassword"
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary w-100 py-2 mb-3 fw-bold"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Creating Account...
-                  </>
-                ) : (
-                  "SIGN UP"
-                )}
-              </button>
-
-              <div className="text-center">
-                <span className="text-muted small">Already have an account? </span>
-                <Link to="/login" className="text-decoration-none text-primary small fw-bold">Sign In</Link>
-              </div>
-            </form>
-          </div>
+            {/* Footer Links */}
+            <div className="text-center">
+              <span className="text-muted small">Already have an account? </span>
+              <Link to="/login" className="text-decoration-none text-primary small fw-bold">
+                Sign In
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>

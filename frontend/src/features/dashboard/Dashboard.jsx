@@ -1,192 +1,171 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getDashboardStats } from "./api";
+import { getOperations } from "../operations/api";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalValue: 0,
-    lowStockCount: 0,
-    recentActivity: [],
-  });
+  const [receipts, setReceipts] = useState([]);
+  const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     try {
-      const data = await getDashboardStats();
-      setStats(data);
+      const [receiptsData, deliveriesData] = await Promise.all([
+        getOperations("receipt"),
+        getOperations("delivery"),
+      ]);
+      setReceipts(receiptsData);
+      setDeliveries(deliveriesData);
     } catch (error) {
-      console.error("Failed to fetch dashboard stats", error);
+      console.error("Failed to fetch dashboard data", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="d-flex justify-content-center align-items-center vh-100"><div className="spinner-border text-primary" style={{width: '3rem', height: '3rem'}}></div></div>;
+  // Calculate stats
+  const receiptStats = {
+    toReceive: receipts.filter(r => r.status === 'draft').length,
+    total: receipts.length,
+  };
+
+  const deliveryStats = {
+    toDeliver: deliveries.filter(d => d.status === 'draft').length,
+    late: deliveries.filter(d => d.status === 'late').length,
+    waiting: deliveries.filter(d => d.status === 'waiting').length,
+    total: deliveries.length,
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" style={{width: '3rem', height: '3rem'}}></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container-fluid p-5">
-      {/* Header Section */}
-      <div className="d-flex justify-content-between align-items-center mb-5">
-        <div>
-          <h1 className="h3 fw-bold mb-2">Dashboard</h1>
-          <p className="text-muted mb-0 fs-5">Welcome back! Here's what's happening with your inventory.</p>
+    <div className="container-fluid p-4">
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="h3 fw-bold">Dashboard</h1>
+      </div>
+
+      {/* Operations Summary */}
+      <div className="row g-4 mb-4">
+        {/* Receipt Card */}
+        <div className="col-md-6">
+          <div 
+            className="card border-2 shadow-sm h-100 cursor-pointer" 
+            style={{ borderColor: '#e74c3c' }}
+            onClick={() => navigate('/operations/receipts')}
+          >
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <h5 className="fw-bold">Receipt</h5>
+                <i className="bi bi-box-arrow-in-down fs-3 text-danger"></i>
+              </div>
+              
+              <div className="mb-3">
+                <div className="d-flex align-items-baseline">
+                  <h2 className="display-4 fw-bold text-danger mb-0">{receiptStats.toReceive}</h2>
+                  <span className="ms-2 text-muted">to Receive</span>
+                </div>
+              </div>
+
+              <div className="d-flex gap-3 text-muted small">
+                <div>
+                  <i className="bi bi-check-circle me-1"></i>
+                  {receiptStats.total} operations
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="d-flex gap-3">
-            <button className="btn btn-white border shadow-sm px-4 py-2"><i className="bi bi-download me-2"></i>Export Report</button>
-            <button className="btn btn-primary px-4 py-2"><i className="bi bi-plus-lg me-2"></i>New Operation</button>
+
+        {/* Delivery Card */}
+        <div className="col-md-6">
+          <div 
+            className="card border-2 shadow-sm h-100 cursor-pointer" 
+            style={{ borderColor: '#3498db' }}
+            onClick={() => navigate('/operations/deliveries')}
+          >
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <h5 className="fw-bold">Delivery</h5>
+                <i className="bi bi-truck fs-3 text-primary"></i>
+              </div>
+              
+              <div className="mb-3">
+                <div className="d-flex align-items-baseline mb-2">
+                  <h2 className="display-4 fw-bold text-primary mb-0">{deliveryStats.toDeliver}</h2>
+                  <span className="ms-2 text-muted">to Deliver</span>
+                </div>
+                <div className="d-flex gap-3">
+                  <span className="badge bg-danger">{deliveryStats.late} Late</span>
+                  <span className="badge bg-warning text-dark">{deliveryStats.waiting} Waiting</span>
+                </div>
+              </div>
+
+              <div className="d-flex gap-3 text-muted small">
+                <div>
+                  <i className="bi bi-check-circle me-1"></i>
+                  {deliveryStats.total} operations
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="row g-5 mb-5">
-        <div className="col-md-4">
-          <div className="dashboard-card p-4 h-100">
-            <div className="d-flex justify-content-between align-items-start h-100">
-              <div className="d-flex flex-column justify-content-between h-100">
-                <div>
-                    <p className="text-muted fw-medium mb-2 text-uppercase small ls-1">Total Products</p>
-                    <h2 className="display-5 fw-bold mb-0">{stats.totalProducts}</h2>
+      {/* Quick Actions */}
+      <div className="row g-4">
+        <div className="col-12">
+          <div className="card shadow-sm">
+            <div className="card-body p-4">
+              <h5 className="fw-bold mb-4">Quick Actions</h5>
+              <div className="row g-3">
+                <div className="col-md-3">
+                  <button 
+                    onClick={() => navigate("/operations/receipts/new")} 
+                    className="btn btn-outline-primary w-100 p-3 text-start"
+                  >
+                    <i className="bi bi-box-arrow-in-down me-2"></i>
+                    <div className="fw-bold">New Receipt</div>
+                  </button>
                 </div>
-                <p className="text-success small mt-3 mb-0"><i className="bi bi-arrow-up-short fs-5 align-middle"></i> <span className="fw-semibold">12%</span> vs last month</p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-primary p-3 rounded-4">
-                <i className="bi bi-box-seam fs-3"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="dashboard-card p-4 h-100">
-            <div className="d-flex justify-content-between align-items-start h-100">
-              <div className="d-flex flex-column justify-content-between h-100">
-                <div>
-                    <p className="text-muted fw-medium mb-2 text-uppercase small ls-1">Total Stock Value</p>
-                    <h2 className="display-5 fw-bold mb-0">${stats.totalValue.toLocaleString()}</h2>
+                <div className="col-md-3">
+                  <button 
+                    onClick={() => navigate("/operations/deliveries/new")} 
+                    className="btn btn-outline-info w-100 p-3 text-start"
+                  >
+                    <i className="bi bi-truck me-2"></i>
+                    <div className="fw-bold">New Delivery</div>
+                  </button>
                 </div>
-                <p className="text-success small mt-3 mb-0"><i className="bi bi-arrow-up-short fs-5 align-middle"></i> <span className="fw-semibold">5%</span> vs last month</p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-success p-3 rounded-4">
-                <i className="bi bi-currency-dollar fs-3"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="dashboard-card p-4 h-100">
-            <div className="d-flex justify-content-between align-items-start h-100">
-              <div className="d-flex flex-column justify-content-between h-100">
-                <div>
-                    <p className="text-muted fw-medium mb-2 text-uppercase small ls-1">Low Stock Alerts</p>
-                    <h2 className="display-5 fw-bold mb-0">{stats.lowStockCount}</h2>
+                <div className="col-md-3">
+                  <button 
+                    onClick={() => navigate("/products/new")} 
+                    className="btn btn-outline-success w-100 p-3 text-start"
+                  >
+                    <i className="bi bi-plus-square me-2"></i>
+                    <div className="fw-bold">Add Product</div>
+                  </button>
                 </div>
-                <p className="text-danger small mt-3 mb-0"><i className="bi bi-exclamation-circle fs-5 align-middle"></i> Needs attention</p>
-              </div>
-              <div className="stat-icon-wrapper stat-icon-danger p-3 rounded-4">
-                <i className="bi bi-bell fs-3"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+                <div className="col-md-3">
+                  <button 
+                    onClick={() => navigate("/ledger")} 
+                    className="btn btn-outline-secondary w-100 p-3 text-start"
+                  >
 
-      <div className="row g-5">
-        {/* Recent Activity Table */}
-        <div className="col-lg-8">
-          <div className="table-card h-100 border-0 shadow-sm">
-            <div className="d-flex justify-content-between align-items-center p-4 border-bottom bg-white rounded-top-3">
-              <h5 className="fw-bold mb-0">Recent Activity</h5>
-              <button className="btn btn-sm btn-link text-decoration-none fw-medium" onClick={() => navigate('/ledger')}>View All</button>
-            </div>
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="bg-light">
-                  <tr>
-                    <th className="ps-4 py-3 text-secondary fw-semibold small">Reference</th>
-                    <th className="py-3 text-secondary fw-semibold small">Product</th>
-                    <th className="py-3 text-secondary fw-semibold small">Date</th>
-                    <th className="py-3 text-secondary fw-semibold small">Type</th>
-                    <th className="text-end pe-4 py-3 text-secondary fw-semibold small">Quantity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentActivity.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="text-center py-5 text-muted">
-                        <div className="py-5">
-                            <i className="bi bi-inbox display-4 d-block mb-3 text-light opacity-25"></i>
-                            <p className="mb-0">No recent activity found.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    stats.recentActivity.map((move) => (
-                      <tr key={move._id}>
-                        <td className="ps-4 py-3 fw-medium text-primary">{move.reference}</td>
-                        <td className="py-3 fw-medium text-dark">{move.product?.name}</td>
-                        <td className="py-3 text-muted small">{new Date(move.createdAt).toLocaleDateString()}</td>
-                        <td className="py-3">
-                            {move.quantity > 0 ? 
-                                <span className="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Incoming</span> : 
-                                <span className="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">Outgoing</span>
-                            }
-                        </td>
-                        <td className={`text-end pe-4 py-3 fw-bold ${move.quantity > 0 ? 'text-success' : 'text-danger'}`}>
-                          {move.quantity > 0 ? '+' : ''}{move.quantity}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="col-lg-4">
-          <div className="dashboard-card h-100 border-0 shadow-sm">
-            <div className="p-4 border-bottom bg-white rounded-top-3">
-              <h5 className="fw-bold mb-0">Quick Actions</h5>
-            </div>
-            <div className="p-4">
-              <div className="d-flex flex-column gap-3">
-                <button onClick={() => navigate("/operations/receipts/new")} className="quick-action-btn p-3 border rounded-3 bg-light-subtle hover-lift transition-all">
-                  <i className="bi bi-box-arrow-in-down fs-4 text-primary bg-primary-subtle p-2 rounded-3 me-3"></i>
-                  <div>
-                    <div className="fw-bold text-dark">Receive Products</div>
-                    <div className="small text-muted mt-1">Register incoming stock</div>
-                  </div>
-                </button>
-                
-                <button onClick={() => navigate("/operations/deliveries/new")} className="quick-action-btn p-3 border rounded-3 bg-light-subtle hover-lift transition-all">
-                  <i className="bi bi-truck fs-4 text-info bg-info-subtle p-2 rounded-3 me-3"></i>
-                  <div>
-                    <div className="fw-bold text-dark">Create Delivery</div>
-                    <div className="small text-muted mt-1">Ship products to customers</div>
-                  </div>
-                </button>
-
-                <button onClick={() => navigate("/products/new")} className="quick-action-btn p-3 border rounded-3 bg-light-subtle hover-lift transition-all">
-                  <i className="bi bi-plus-square fs-4 text-success bg-success-subtle p-2 rounded-3 me-3"></i>
-                  <div>
-                    <div className="fw-bold text-dark">Add Product</div>
-                    <div className="small text-muted mt-1">Create a new item SKU</div>
-                  </div>
-                </button>
-
-                <button onClick={() => navigate("/operations/adjustments/new")} className="quick-action-btn p-3 border rounded-3 bg-light-subtle hover-lift transition-all">
-                  <i className="bi bi-sliders fs-4 text-warning bg-warning-subtle p-2 rounded-3 me-3"></i>
-                  <div>
-                    <div className="fw-bold text-dark">Inventory Adjustment</div>
-                    <div className="small text-muted mt-1">Correct stock discrepancies</div>
-                  </div>
-                </button>
+                    <i className="bi bi-journal-text me-2"></i>
+                    <div className="fw-bold">Stock Ledger</div>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

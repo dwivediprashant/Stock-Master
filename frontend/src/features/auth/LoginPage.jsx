@@ -34,83 +34,73 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="container-fluid vh-100">
-      <div className="row h-100">
-        {/* Brand Panel */}
-        <div className="col-md-6 d-none d-md-flex bg-navy text-white align-items-center justify-content-center flex-column p-5">
+    <div 
+      className="min-vh-100 d-flex align-items-center justify-content-center" 
+      style={{ 
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%)',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <div className="card shadow-lg border-0" style={{ width: '100%', maxWidth: '400px' }}>
+        <div className="card-body p-5">
+          {/* App Logo */}
           <div className="text-center mb-4">
-            <img src={APP_LOGO_URL} alt="Logo" style={{ height: '80px', borderRadius: '12px' }} className="mb-4 shadow-lg" />
-            <h1 className="display-4 fw-bold mb-3">StockMaster</h1>
-            <p className="lead text-white-50">Streamline your inventory operations with precision and ease.</p>
+            <img 
+              src={APP_LOGO_URL} 
+              alt="App Logo" 
+              style={{ height: '60px', borderRadius: '8px' }} 
+              className="mb-3"
+            />
+            <h4 className="fw-bold text-navy">Login</h4>
           </div>
-        </div>
 
-        {/* Form Panel */}
-        <div className="col-md-6 d-flex align-items-center justify-content-center bg-white">
-          <div className="w-100 p-4 p-lg-5" style={{ maxWidth: '450px' }}>
-            <div className="text-center mb-5 d-md-none">
-              <img src={APP_LOGO_URL} alt="Logo" height="60" className="mb-3" />
-              <h2 className="fw-bold text-navy">StockMaster</h2>
+          <form onSubmit={handleSubmit}>
+            {/* Login Id */}
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Login Id</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter your login ID"
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
+                required
+              />
             </div>
 
-            <h2 className="fw-bold mb-2 text-navy">Welcome Back</h2>
-            <p className="text-muted mb-4">Please sign in to your account</p>
+            {/* Password */}
+            <div className="mb-4">
+              <label className="form-label fw-semibold">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="loginId">Login Id</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-person text-muted"></i></span>
-                  <input
-                    type="text"
-                    className="form-control border-start-0 ps-0"
-                    id="loginId"
-                    placeholder="Enter your login ID"
-                    value={loginId}
-                    onChange={(e) => setLoginId(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+            {/* Sign In Button */}
+            <button
+              type="submit"
+              className="btn btn-primary w-100 py-2 fw-bold mb-3"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "SIGN IN"}
+            </button>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="password">Password</label>
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0"><i className="bi bi-lock text-muted"></i></span>
-                  <input
-                    type="password"
-                    className="form-control border-start-0 ps-0"
-                    id="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary w-100 py-2 mb-3 fw-bold"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Signing in...
-                  </>
-                ) : (
-                  "SIGN IN"
-                )}
-              </button>
-
-              <div className="text-center mt-3">
-                <Link to="/forgot-password" className="text-decoration-none text-muted small me-2">Forget Password?</Link>
-                <span className="text-muted">|</span>
-                <Link to="/signup" className="text-decoration-none text-primary small ms-2">Sign Up</Link>
-              </div>
-            </form>
-          </div>
+            {/* Footer Links */}
+            <div className="text-center">
+              <Link to="/forgot-password" className="text-decoration-none text-muted small">
+                Forget Password?
+              </Link>
+              <span className="text-muted mx-2">|</span>
+              <Link to="/signup" className="text-decoration-none text-primary small">
+                Sign Up
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
     </div>

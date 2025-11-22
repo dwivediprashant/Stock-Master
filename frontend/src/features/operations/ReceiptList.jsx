@@ -60,7 +60,7 @@ const ReceiptList = () => {
           onClick={() => navigate("/operations/receipts/new")}
           className="btn btn-primary"
         >
-          <i className="bi bi-plus-lg me-2"></i>Create Receipt
+          <i className="bi bi-plus-lg me-2"></i>NEW
         </button>
       </div>
 
@@ -115,8 +115,8 @@ const ReceiptList = () => {
                 <thead className="table-light">
                   <tr>
                     <th className="ps-4">Reference</th>
-                    <th>Vendor</th>
-                    <th>Date</th>
+                    <th>Contact</th>
+                    <th>Schedule Date</th>
                     <th>Status</th>
                     <th className="text-end pe-4">Action</th>
                   </tr>
@@ -134,7 +134,7 @@ const ReceiptList = () => {
                       <tr key={receipt._id} onClick={() => navigate(`/operations/receipts/${receipt._id}`)} style={{ cursor: "pointer" }}>
                         <td className="ps-4 fw-bold text-primary">{receipt.reference}</td>
                         <td>{receipt.partner || "-"}</td>
-                        <td>{new Date(receipt.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(receipt.scheduleDate || receipt.createdAt).toLocaleDateString()}</td>
                         <td>
                           <span className={`badge ${getStatusBadge(receipt.status)}`}>
                             {receipt.status.toUpperCase()}
