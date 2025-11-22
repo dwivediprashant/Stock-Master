@@ -29,6 +29,18 @@ const stockOperationSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    deliveryAddress: {
+      type: String,
+      trim: true,
+    },
+    availableDate: {
+      type: Date,
+    },
+    destinationType: {
+      type: String,
+      enum: ["customer", "warehouse", "other"],
+      default: "customer",
+    },
     sourceLocation: {
       type: String,
       default: "Vendor", // Default for receipts
